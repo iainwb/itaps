@@ -26,8 +26,14 @@ This is really just a pet project born out of frustration. I know many others ha
 
 Where this is going (future plans):
 
+Bootstrap 4
+
 Mobile device display optimization
+
 Login for admin section
+
 Flow meters
+
 Ability to import beers from brewing software (Beer Smith, Brewers Friend)
+
 Improved form validation
