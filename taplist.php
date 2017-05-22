@@ -1,141 +1,165 @@
+<!doctype html>
 <?php
 	include('assets/inc/func.inc');
 	require_once('Connections/itaps_conn.php');
 	
-	mysqli_select_db($conn, $database);
-	$query_tapList = "SELECT
-	beers.beerName,
+	$query_config_info = "SELECT
+	 config.config_id,
+	 config.config_name,
+	 config.config_value,
+	 config.display_name,
+	 config.show_on_panel
+	 FROM
+	 config
+	 ORDER BY
+	 config.config_id ASC";
+	$config_info = $conn->query($query_config_info);
+	$config_list = $config_info->fetchAll(PDO::FETCH_ASSOC);
+	
+	$show_tap_num_col = $config_list[0]['config_value'];
+	$show_srm_col = $config_list[1]['config_value'];
+	$show_ibu_col = $config_list[2]['config_value'];
+	$show_abv_col = $config_list[3]['config_value'];
+	$show_abv_img = $config_list[4]['config_value'];
+	$header_text = $config_list[9]['config_value'];
+	$a = $b = $c = $d = 0;
+	$name_width = '';
+	
+	$query_taplist = "SELECT
+	tap_status.tap_id,
+	beers.beer_name,
 	beers.og,
 	beers.fg,
 	beers.ibu,
 	beers.note,
-	srm.srmValue,
-	srm.hexColor,
-	srm.colorName,
-	`2015-bjcp-styles`.styleNumber,
-	`2015-bjcp-styles`.styleName,
-	`keg-status`.`status`,
-	`on-tap`.tap_id
+	srm.srm_value,
+	srm.hex_color,
+	srm.color_name,
+	bjcp_styles.style_number,
+	bjcp_styles.style_name,
+	keg_status.status_code
 	FROM
 	srm
 	JOIN beers
-	ON srm.srmValue = beers.srmValue_fk 
-	JOIN `2015-bjcp-styles`
-	ON `2015-bjcp-styles`.styleNumber = beers.styleNumber_fk 
+	ON srm.srm_value = beers.srm_value_fk 
+	JOIN bjcp_styles
+	ON bjcp_styles.style_number = beers.style_number_fk 
 	JOIN kegs
 	ON beers.beer_id = kegs.beer_id_fk 
-	JOIN `keg-status`
-	ON `keg-status`.status_id = kegs.status_id_fk 
-	JOIN `on-tap`
-	ON kegs.keg_id = `on-tap`.keg_id_fk
+	JOIN keg_status
+	ON keg_status.status_id = kegs.status_id_fk 
+	JOIN tap_status
+	ON kegs.keg_id = tap_status.keg_id_fk
 	WHERE
-	`keg-status`.`status` ='Tapped'
+	keg_status.status_code ='Tapped'
 	ORDER BY
-	`on-tap`.tap_id ASC";
+	tap_status.tap_id ASC";
+	$taplist = $conn->query($query_taplist);
 	
-	$tapList = mysqli_query($conn, $query_tapList) or die(mysqli_error());
-	$row_tapList = mysqli_fetch_assoc($tapList);
-	$totalRows_tapList = mysqli_num_rows($tapList);
+	$row_taplist = $taplist->fetch(PDO::FETCH_ASSOC);
+	
+	 if ($show_tap_num_col == 0) $a = 1; 
+	 if ($show_srm_col == 0) $b = 2;
+	 if ($show_ibu_col == 0) $c = 2;
+	 if ($show_abv_col == 0) $d = 2;
+	 
+	 $name_width = (($a + $b + $c + $d)+5);
 	?>
-<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8">
 		<title>Taplist</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<!-- Bootstrap core CSS -->
 		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
-		<!-- Bootstrap theme -->
-		<link href="assets/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-		<link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 		<!-- Custom styles for this template -->
 		<link href="assets/css/taplist.css" rel="stylesheet" type="text/css">
 		<!-- <link href="assets/css/high-res.css" rel="stylesheet" type="text/css"> -->
 		<link href="https://fonts.googleapis.com/css?family=Quicksand|Raleway|Roboto+Condensed" rel="stylesheet">
 	</head>
 	<body>
-		<div class="container">
+		<div class="container-fluid">
 			<?php
 				if (isset($_GET['preview']) && $_GET['preview'] == 'yes')
-					include("assets/inc/navbar-header.inc");
-				?>
-			<div class="row now-serving">
-				<div>Currently on Tap</div>
+				include("assets/inc/navbar-header.inc");
+			?>
+			<div class="row top">
+				<p class="now-serving"><?php echo $header_text; ?></p>
 			</div>
 			<div class="row headings">
-				<div class=" col-md-1">Tap	<br/>#</div>
-				<div class="col-md-1">
+				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>">Tap<br/>#</div>
+				<div class="og-color col-2  <?php if ($show_srm_col == 0) echo 'no-show';?>">
 					Gravity
-					<hr>
+					<hr />
 					Color 
 				</div>
-				<div class=" col-md-1">
+				<div class="ibu col-2 <?php if ($show_ibu_col == 0) echo 'no-show';?>">
 					Balance
 					<hr />
 					Bitterness 
 				</div>
-				<div class=" col-md-8">
+				<div class="name col-<?php echo $name_width; ?>">
 					Beer Name &amp; Style
-					<hr>
+					<hr />
 					Tasting Notes
 				</div>
-				<div class=" col-md-1">
+				<div class="abv col-2">
 					Calories
-					<hr>
+					<hr />
 					Alcohol 
 				</div>
 			</div>
-			<div class="grid">
-				<?php 
-					do {
-					$og=$row_tapList['og'];
-					$fg=$row_tapList['fg'];
-					$ibu=$row_tapList['ibu'];
-					$gubu = round($ibu/(($og-1)*1000),2);
-					$abv=$kCal=$ibuImg=$abvImg=0;
-					$abv=abv($og, $fg, $abv, $digits = 2);
-					$kCal=kCal($og, $fg, $kCal, $digits = 1);
-					$ibuImg = (round($ibu/120,2)*100);
-					$abvImg = (round($abv*100,2)/15);
-					?>
-				<div class="beer-info row row-eq-height">
-					<div class="tap-num col col-md-1 "><span class="tapcircle"><?php echo $row_tapList['tap_id'];?></span></div>
-					<div class="og-color col col-md-1 ">
-						<h3><?php echo $row_tapList['og'];?> OG</h3>
-						<div class="srm-container">
-							<div class="srm-indicator" style="background-color: <?php echo $row_tapList['hexColor']?>; ">
-								<div class="srm-stroke"></div>
-							</div>
+			<?php 
+				do {
+				$tap_num = $row_taplist['tap_id'];
+				$srm_value = $row_taplist['srm_value'];
+				$color_name = $row_taplist['color_name'];
+				$hex_color = $row_taplist['hex_color'];
+				$og=$row_taplist['og'];
+				$fg=$row_taplist['fg'];
+				$ibu=$row_taplist['ibu'];
+				$gubu = round($ibu/(($og-1)*1000),2);
+				$abv=$kCal=$ibuImg=$abvImg=0;
+				$abv=abv($og, $fg, $abv, $digits = 2);
+				$kCal=kCal($og, $fg, $kCal, $digits = 1);
+				$ibu_img = (round($ibu/120,2)*100);
+				$abv_img = (round($abv*100,2)/15);
+				?>
+			<div class="row beer-info">
+				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>"><span class="tapcircle"><?php echo $tap_num;?></span></div>
+				<div class="og-color col-2 <?php if ($show_srm_col == 0) echo 'no-show';?>">
+					<h3><?php echo $og;?> OG</h3>
+					<div class="srm-container">
+						<div class="srm-indicator" style="background-color: <?php echo $hex_color;?> ">
+							<div class="srm-stroke"></div>
 						</div>
-						<h3><?php echo $row_tapList['srmValue'] ?> SRM<br/> <?php echo $row_tapList['colorName'] ?></h3>
 					</div>
-					<div class="ibu col col-md-1 ">
-						<h3><?php echo $gubu;?> GU:BU</h3>
-						<div class="ibu-container">
-							<div class="ibu-indicator">
-								<div class="ibu-full" style="height: <?php echo $ibuImg ?>%"></div>
-							</div>
+					<h3><?php echo $srm_value; ?> SRM<br/> <?php echo $color_name; ?></h3>
+				</div>
+				<div class="ibu col-2 <?php if ($show_ibu_col == 0) echo 'no-show';?>">
+					<h3><?php echo $gubu;?> GU:BU</h3>
+					<div class="ibu-container">
+						<div class="ibu-indicator">
+							<div class="ibu-full" style="height: <?php echo $ibu_img ?>%"></div>
 						</div>
-						<h3><?php echo $ibu; ?> IBU</h3>
 					</div>
-					<div class="name col col-md-8">
-						<h1 class="beer-name"><?php echo $row_tapList['beerName'];?></h1>
-						<h2 class="beer-style"><?php echo $row_tapList['styleName'];?></h2>
-						<p class="tasting-notes"><?php echo $row_tapList['note'];?></p>
-					</div>
-					<div class="abv col col-md-1 ">
-						<h3><?php echo $kCal;?> kCal</h3>
-						<div class="abv-container">
-							<div class="abv-indicator">
-								<div class="abv-full" style="height: <?php echo $abvImg ?>%"></div>
-							</div>
+					<h3><?php echo $ibu; ?> IBU</h3>
+				</div>
+				<div class="name col-<?php echo $name_width; ?>">
+					<h1 class="beer-name"><?php echo $row_taplist['beer_name'];?></h1>
+					<h2 class="beer-style"><?php echo $row_taplist['style_name'];?></h2>
+					<p class="tasting-notes"><?php echo $row_taplist['note'];?></p>
+				</div>
+				<div class="abv col-2 <?php if ($show_abv_col == 0) echo 'no-show';?>">
+					<h3><?php echo $kCal;?> kCal</h3>
+					<div class="abv-container <?php if ($show_abv_img == 0) echo 'no-show';?>">
+						<div class="abv-indicator">
+							<div class="abv-full" style="height: <?php echo $abv_img ?>%"></div>
 						</div>
-						<h3><?php echo $abv; ?> ABV</h3>
-					</div>				</div>
-				<?php } while ($row_tapList = mysqli_fetch_assoc($tapList)); ?>
+					</div>
+					<h3><?php echo $abv; ?> ABV</h3>
+				</div>
 			</div>
+			<?php } while ($row_taplist = $taplist->fetch(PDO::FETCH_ASSOC)); ?>
 		</div>
 </html>
-<?php
-	mysqli_free_result($tapList);
-	?>
