@@ -129,7 +129,7 @@
 				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>"><span class="tapcircle"><?php echo $tap_num;?></span></div>
 				<div class="og-color col-2 <?php if ($show_srm_col == 0) echo 'no-show';?>">
 					<h3><?php echo $og;?> OG</h3>
-					<div class="srm-container">
+					<div class="srm-container hidden-sm-down">
 						<div class="srm-indicator" style="background-color: <?php echo $hex_color;?> ">
 							<div class="srm-stroke"></div>
 						</div>
@@ -138,7 +138,7 @@
 				</div>
 				<div class="ibu col-2 <?php if ($show_ibu_col == 0) echo 'no-show';?>">
 					<h3><?php echo $gubu;?> GU:BU</h3>
-					<div class="ibu-container">
+					<div class="ibu-container hidden-sm-down">
 						<div class="ibu-indicator">
 							<div class="ibu-full" style="height: <?php echo $ibu_img ?>%"></div>
 						</div>
@@ -148,11 +148,11 @@
 				<div class="name col-<?php echo $name_width; ?>">
 					<h1 class="beer-name"><?php echo $row_taplist['beer_name'];?></h1>
 					<h2 class="beer-style"><?php echo $row_taplist['style_name'];?></h2>
-					<p class="tasting-notes"><?php echo $row_taplist['note'];?></p>
+					<p class="tasting-notes hidden-sm-down"><?php echo $row_taplist['note'];?></p>
 				</div>
 				<div class="abv col-2 <?php if ($show_abv_col == 0) echo 'no-show';?>">
 					<h3><?php echo $kCal;?> kCal</h3>
-					<div class="abv-container <?php if ($show_abv_img == 0) echo 'no-show';?>">
+					<div class="abv-container hidden-sm-down <?php if ($show_abv_img == 0) echo 'no-show';?>">
 						<div class="abv-indicator">
 							<div class="abv-full" style="height: <?php echo $abv_img ?>%"></div>
 						</div>
