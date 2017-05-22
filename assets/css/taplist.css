@@ -1,12 +1,10 @@
 /* @override 
 	http://itaps.loc/assets/css/taplist.css
-	http://itaps.loc/assets/css/taplist2.css */
-
+	*/
 /* CSS Document */
 
-html, body
-{
-  height: 100%;
+html, body {
+	height: 100%;
 }
 
 body {
@@ -15,13 +13,14 @@ body {
 	background-size: cover;
 	overflow: hidden;
 	color: #fff;
-	font-size: 1.25em;
+	font-size: 1em;
 //	font-family: 'Quicksand', sans-serif;
 //	font-family: 'Roboto Condensed', sans-serif; 
 	font-family: 'Raleway', sans-serif;
+	background: url(/assets/img/ios-linen.jpg);
 }
 
-h1, h2, h3, h4, ul, li, div, form {
+h1, h2, h3, h4, ul, li, div, form, p {
 	margin: 0;
 	padding: 0;
 }
@@ -35,69 +34,83 @@ hr {
 	background-image:    -moz-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255)); 
 	background-image:     -ms-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255)); 
 	background-image:      -o-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
+	padding-right: 5px;
 }
 
-.container {
- 	height: 100%;
- 	width: 100%;
- 	padding: 0 1em;
- 	background: url(/assets/img/ios-linen.jpg);
- }
-
-.now-serving div {
-	color: #fff;
-	font-size: 4em;
-	text-align: center;
-	padding-top: .25em;
-	padding-bottom: .25em;
-	height: 10%;
+.no-show {
+	display: none !important;
 }
 
-
-.headings div {
-	background-color: gray;
-	color: #fff;
-	height: 4em;
-	line-height: 1.9em;
-	font-size: 1.5em;
-	text-align: center;
-	vertical-align: middle;
-	padding: 0;
+.wrap {
+	padding: 0 5px;
+	align-items: stretch;
+	align-content: stretch;
 }
 
-body div.container div.beer-info.row {
-	padding: 1em 0 ;
-}
-
-
-div.og-color {
-	border-left: 1px dotted #fff;
-	border-right: 1px dotted #fff;
-}
-
-div.tap-num {
-	text-align: center;
-}
-
-div.name {
-	border-left: 1px dotted #fff;
-	border-right: 1px dotted #fff;
-	align-self: stretch;
-}
-
-.beer-info {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
+.top {
 	justify-content: center;
 	align-items: center;
 }
 
-h3 {
-	padding: 20px 0;
+.now-serving {
+	color: #fff;
+	font-size: 2.5rem;
 	text-align: center;
-	line-height: 1.25em;
-	font-size: 1.5em;
+}
+
+div.row.headings {
+	background-color: gray;
+	color: #fff;
+	text-align: center;
+	flex-wrap: nowrap;
+	align-items: center;
+}
+
+div.row.beer-info {
+	align-items: stretch;
+}
+
+div.tap-num {
+	display: flex;
+	border-right: 1px dotted #fff;
+	text-align: center;
+	align-self: stretch;
+	justify-content: center;
+}
+
+div.og-color {
+	border-right: 1px dotted #fff;
+	text-align: center;
+}
+
+div.ibu {
+	border-right: 1px dotted #fff;
+	display: flex;
+	flex-direction: column;
+	border-right: 1px dotted #fff;
+	text-align: center;
+	align-self: stretch;
+	justify-content: center;
+}
+
+div.name {
+	border-right: 1px dotted #fff;
+}
+
+div.abv {
+	display: flex;
+	flex-direction: column;
+	border-right: 1px dotted #fff;
+	text-align: center;
+	align-self: stretch;
+	justify-content: center;
+}
+
+h3 {
+	padding: .5em 0;
+	text-align: center;
+	line-height: 1rem;
+	font-size: 1rem;
 }
 
 span.tapcircle {
@@ -106,7 +119,7 @@ span.tapcircle {
   	-webkit-border-radius: 1em;
   	width: 2em;
   	line-height: 2em;
-  	font-size: 1.75em;
+  	font-size: 1.25rem;
   	display: inline-block;
   	font-weight: bold;
   	margin-right: 5px;
@@ -114,21 +127,26 @@ span.tapcircle {
   	text-align: center;
 	background-color: gray;
 	color: #fff;
+	align-self: center;
 }
 
 h1.beer-name {
 	background-color: gray;
 	padding: .25em .25em;
+	margin-top: .25em;
+	font-size: 1.5rem;
 }
 
 h2.beer-style {
 	text-align: left;
 	padding: .25em .25em;
+	font-size: 1.25rem;
 }
 
 p.tasting-notes {
 	text-align: left;
-	font-size: 1.5em;
+	font-size: 1rem;
+	padding: .25em .25em;
 }
 
 div.beer-info.row:nth-child(even) {
@@ -168,7 +186,7 @@ div.beer-info.row:nth-child(odd) {
 	top: 0;
 	left: 0;
 	z-index: 2;
-	background: url(../../assets/img/srm/pint-stroke.png)
+	background: url(../../assets/img/srm/pint-stroke.png) no-repeat bottom left;
 }
 
 .ibu-container{

@@ -1,0 +1,84 @@
+/* @override 
+	http://itaps.loc/assets/css/custom.css
+	*/
+/* CSS Document */
+
+body {
+	padding-top: 3.75rem;
+	font-family: 'Muli', sans-serif;
+}
+
+a.navbar-brand {
+	color: #7ced7c !important;
+}
+
+div.settings a.nav-link {
+	align-self: flex-end;
+	padding: .25rem .25rem;
+	
+}
+
+.page-title h1 {
+	font-weight: bold;
+	margin-bottom: .75rem;
+	margin-left: -1.25rem;
+}
+
+div.page-title {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1.25rem;
+}
+
+.name, .kegnum {
+	font-size: 1.5rem;
+	font-weight: bold;
+	color: #fff;
+	background: gray;
+}
+
+.row {
+	display: flex;
+	justify-content: ;
+	padding-top: .75rem;
+	padding-bottom: .75rem;	
+}
+
+.edit, .delete, .keg-status-code, .tap-action {
+	align-self: center;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+button {
+	width: 9rem;
+}
+
+button span.fa {
+	padding-right: 1rem;
+}
+
+button.close {
+	text-align: right;
+}
+
+.tap-action, .keg-status-code {
+	text-align: center;
+}
+
+div.keg-status-code {
+	display: flex;
+	justify-content: center;
+	align-self: center;
+	font-weight: bold;
+	}
+	
+.keg-status-code div {
+		padding: .25rem 0;
+		width: 9rem;
+	}
+	
+	.btn.form {
+	//background: #333;
+		width: 8rem;
+	}
