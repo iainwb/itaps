@@ -1,372 +1,407 @@
 <!DOCTYPE html>
 <?php 
-	include ('assets/inc/func.inc');
-	
-	require_once ('Connections/itaps_conn.php');
-	
-	mysqli_set_charset($conn, 'utf8');
-	
-	// declare variables and set to empty/placeholder values
-	
-	$tapKick = $keg_id = $tap_id = $action = $beer_id = $feedback = $sql = '';
-	$color = "fff";
-	
-	
-	// Pull free tap data
-	
-	mysqli_select_db($conn, $database);
-	$query_freeTaps = "SELECT
-	`on-tap`.tap_id
-	FROM
-	`on-tap`
-	WHERE
-	`on-tap`.keg_id_fk IS NULL
-	ORDER BY
-	`on-tap`.tap_id ASC";
-	$freeTaps = mysqli_query($conn, $query_freeTaps) or die(mysql_error());
-	$row_freeTaps = mysqli_fetch_assoc($freeTaps);
-	$totalRows_freeTaps = mysqli_num_rows($freeTaps);
-	$listTapID = $row_freeTaps['tap_id'];
-	
-	// Pull keg data
-	
-	mysqli_select_db($conn, $database);
-	$query_kegList = "SELECT
-kegs.keg_id,
-kegs.volume,
-kegs.type,
-kegs.serial,
-kegs.mfg,
-kegs.note,
-kegs.fill,
-`keg-status`.`status`,
-`keg-status`.status_id,
-beers.beerName,
-beers.beer_id,
-admin.volumeType,
-admin.volumeTypeAbbrev,
-`on-tap`.tap_id
-FROM
-`keg-status`
-JOIN kegs
-ON `keg-status`.status_id = kegs.status_id_fk 
-LEFT JOIN beers
-ON kegs.beer_id_fk = beers.beer_id 
-LEFT JOIN `on-tap`
-ON kegs.keg_id = `on-tap`.keg_id_fk,
-admin
-ORDER BY
-kegs.keg_id ASC";
-	$kegList = mysqli_query($conn, $query_kegList) or die(mysql_error());
-	$row_kegList = mysqli_fetch_assoc($kegList);
-	$totalRows_kegList = mysqli_num_rows($kegList);
-	
-	// Set status type color
-	
-	function statusColor($status, $color)
-		{
-		if ($status == "Tapped") echo ("color-tapped");
-		elseif ($status == "On Deck") echo ("color-available");
-		  else echo ("color-unavailable");
-		return ($color);
-		}
-	
-	if (isset($_POST['action']))
-		{
-		$action = $_POST['action'];
-		$keg_id = $_POST['keg_id'];
-		$tap_id = $_POST['tap_id'];
-		if ($action == 'kick') $sql = "UPDATE
-		`on-tap`, kegs
-		SET
-		`on-tap`.keg_id_fk = NULL,
-		kegs.beer_id_fk = NULL,
-		kegs.status_id_fk = 3
-		WHERE
-		`on-tap`.keg_id_fk = kegs.keg_id AND `on-tap`.keg_id_fk = '$keg_id'";
-		if ($action == 'tap')
-			{
-						$sql = "UPDATE `on-tap`,
-				kegs
-			SET	`on-tap`.keg_id_fk = '$keg_id',
-				kegs.status_id_fk = 1
-			WHERE `on-tap`.tap_id = '$tap_id'
-				AND kegs.keg_id = '$keg_id'";
-			}
-	
-		if ($action == 'delete')
-			{
-			$keg_id = $_POST['keg_id'];
-			$sql = "DELETE FROM kegs
-	WHERE keg_id='$keg_id'";
-			}
-	
-		// User feedback
-	
-		if (mysqli_query($conn, $sql))
-			{
-			$feedback = 'Record updated successfully';
-			$feedbackType = 'success';
-//			header("Refresh:3; url=kegs.php", true, 303);
-			}
-		  else
-			{
-			$feedback = 'Error updating record: ' . mysqli_error($conn);
-			$feedbackType = 'danger';
-//			header("Refresh:5; url=kegs.php", true, 303);
-			}
-		}
-	?>
+   include ('assets/inc/func.inc');
+   
+   require_once ('Connections/itaps_conn.php');
+   	
+   // declare variables and set to empty/placeholder values
+   
+   $tapKick = $keg_id = $tap_id = $action = $beer_id = $feedback = $feedback_type = $sql = '';
+   $color = "fff";
+   
+   
+   // Pull free tap data
+   
+   $query_free_taps = "SELECT
+   tap_status.tap_id
+   FROM
+   tap_status
+   WHERE
+   tap_status.keg_id_fk IS NULL
+   ORDER BY
+   tap_status.tap_id ASC";
+   $free_taps = $conn->query($query_free_taps);
+     $row_free_taps = $free_taps->fetch(PDO::FETCH_ASSOC);
+   $list_tap_id = $row_free_taps['tap_id'];
+   
+   // Pull keg data
+   
+   $query_keglist = "SELECT
+   kegs.keg_id,
+   keg_types.display_name,
+   keg_status.status_code,
+   beers.beer_name,
+   beers.beer_id,
+   kegs.serial,
+   kegs.make,
+   kegs.model,
+   kegs.note,
+   tap_status.tap_id
+   FROM
+   keg_types
+   RIGHT JOIN kegs
+   ON keg_types.keg_type_id = kegs.keg_type_id_fk 
+   LEFT JOIN beers
+   ON beers.beer_id = kegs.beer_id_fk 
+   JOIN keg_status
+   ON keg_status.status_id = kegs.status_id_fk 
+   LEFT JOIN tap_status
+   ON tap_status.keg_id_fk = kegs.keg_id
+   ORDER BY
+   kegs.keg_id ASC";
+   $keglist = $conn->query($query_keglist);
+   $row_keglist = $keglist->fetch(PDO::FETCH_ASSOC);
+   
+   // Set status type color
+   
+   function statusColor($status_code, $color)
+   	{
+   	if ($status_code == "Tapped") echo ('card-success');
+   	elseif ($status_code == "On Deck") echo ('card-info');
+		elseif ($status_code == "Empty—Clean") echo ('card-warning');
+		elseif ($status_code == "Conditioning") echo ('card-warning');
+   	  else echo ('card-danger');
+   	return ($color);
+   	}
+   
+   if (isset($_POST['action'])){
+   	
+   	$action = $_POST['action'];
+   	$keg_id = $_POST['keg_id'];
+   	$tap_id = $_POST['tap_id'];
+   			
+   	if ($action == 'kick') {
+   	
+   			try		{
+   	
+   					// set the PDO error mode to exception
+   	
+   					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   	
+   	$sql = "UPDATE
+   	tap_status, kegs
+   	SET
+   	tap_status.keg_id_fk = NULL,
+   	kegs.beer_id_fk = NULL,
+   	kegs.status_id_fk = 3
+   	WHERE
+   	tap_status.keg_id_fk = kegs.keg_id AND tap_status.keg_id_fk = '$keg_id'";
+   	
+   					// Prepare statement
+   			
+   							$stmt = $conn->prepare($sql);
+   			
+   							// execute the query
+   			
+   							$stmt->execute();
+   			
+   							// echo a message to say the UPDATE succeeded
+   			
+   							$feedback = $stmt->rowCount() . " records UPDATED successfully";
+   							$feedback_type = 'success';
+   			
+   							 header("Refresh:2; url=kegs.php", true, 303);
+   			
+   							}
+   			
+   						catch(PDOException $e)
+   							{
+   							$feedback = $sql . "<br />" . $e->getMessage();
+   							$feedback_type = 'danger';
+   			
+   							 header("Refresh:4; url=kegs.php", true, 303);
+   							}
+   	}
+   
+   						if ($action == 'tap'){
+   			
+   			try{
+   	
+   					// set the PDO error mode to exception
+   	
+   					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   					$sql = "UPDATE tap_status,
+   			kegs
+   		SET	tap_status.keg_id_fk = '$keg_id',
+   			kegs.status_id_fk = 1
+   		WHERE tap_status.tap_id = '$tap_id'
+   			AND kegs.keg_id = '$keg_id'";
+   			
+   			// Prepare statement
+   			
+   							$stmt = $conn->prepare($sql);
+   			
+   							// execute the query
+   			
+   							$stmt->execute();
+   			
+   							// echo a message to say the UPDATE succeeded
+   			
+   							$feedback = $stmt->rowCount() . " records UPDATED successfully";
+   							$feedback_type = 'success';
+   			
+   							 header("Refresh:2; url=kegs.php", true, 303);
+   			
+   							}
+   			
+   						catch(PDOException $e)
+   							{
+   							$feedback = $sql . "<br />" . $e->getMessage();
+   							$feedback_type = 'danger';
+   			
+   							 header("Refresh:4; url=kegs.php", true, 303);
+   			
+   							}
+   					}
+   			
+   	
+   
+   	if ($action == 'delete')
+   		{
+   		// set the PDO error mode to exception
+   		   try { $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   		
+   		$keg_id = $_POST['keg_id'];
+   		$sql = "DELETE FROM kegs
+   				WHERE keg_id='$keg_id'";
+   				
+   				// use exec() because no results are returned
+   				    $conn->exec($sql);
+   				    $feedback = 'Record updated successfully';
+   				    $feedbackType = 'success';
+   				    header("Refresh:2; url=kegs.php", true, 303);
+   				    }
+   				catch(PDOException $e)
+   				    {
+   				    $feedback = 'Error updating record: ';
+   				    $feedbackType = 'danger';
+   				    echo $sql . "<br>" . $e->getMessage();
+   				    header("Refresh:4; url=kegs.php", true, 303);
+   				    }
+   				
+   				
+   		}
+   }
+   	// User feedback
+   
+   			
+   ?>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-	<meta name="description" content="">
-	
-	<meta name="author" content="">
-	
-	<link rel="icon" href="../../favicon.ico">
-	
-	<title>Kegs</title>
-	<!-- Bootstrap core CSS -->
-	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Bootstrap theme -->
-	<link href="assets/css/bootstrap-theme.min.css" rel="stylesheet">
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<link href="assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="assets/css/theme.css" rel="stylesheet">
-	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-	<!--[if lt IE 9]>
-	<script src="../../assets/js/ie8-responsive-file-warning.js"></script>
-	<![endif]-->
-	<script src="assets/js/ie-emulation-modes-warning.js"></script>
-	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-	<!--[if lt IE 9]>
-	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-	<![endif]-->
-</head>
-<body>
-	
-	<!-- Modal HTML Kick Keg -->
-	<div id="kegProcessKick" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					
-					<h4 class="modal-title">Confirmation</h4>
-				</div>
-				
-				<div class="modal-body">
-					<p>Do you want to kick this keg?</p>
-					
-					<p class="text-warning"><small>This change cannot be undone.</small></p>
-				</div>
-				
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					
-					<button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Kick</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Modal HTML Tap Keg -->
-	<div id="kegProcessTap" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					
-					<h4 class="modal-title">Confirmation</h4>
-				</div>
-				
-				<div class="modal-body">
-					<p>Do you want to tap this keg?</p>
-					
-					<form>
-						<select class="form-control" name="listTapId" id="listTapId">
-							<option>Choose a tap:</option>
-							<?php do { 
-								$listTapID = $row_freeTaps['tap_id'];
-								?>
-							<option data-keg_id="<?php echo $listTapID ?>" value="<?php echo $listTapID ?>"><?php echo $listTapID; ?></option>
-							<?php } while ($row_freeTaps = mysqli_fetch_assoc($freeTaps)); ?>	
-						</select>
-					</form>
-				</div>
-				
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					
-					<button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Tap</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Modal HTML Delete Keg -->
-	<div id="kegProcessDelete" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					
-					<h4 class="modal-title">Confirmation</h4>
-				</div>
-				
-				<div class="modal-body">
-					<p>Do you want to delete this keg?</p>
-					
-					<p class="text-warning"><small>This change cannot be undone.</small></p>
-				</div>
-				
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					
-					<button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Delete</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Modal HTML Edit Keg -->
-	<div id="kegProcessEdit" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					
-					<h4 class="modal-title">Confirmation</h4>
-				</div>
-				
-				<div class="modal-body">
-					<p>Do you want to edit this keg?</p>
-					
-					<p class="text-warning"><small>This change cannot be undone.</small></p>
-				</div>
-				
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					
-					<button type="button" class="btn btn-primary" onclick=" submitKegEdit()">Edit</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<?php include("assets/inc/navbar-header.inc"); ?>
-	<div class="container theme-showcase" role="main">
-	<button type="button" class="btn new btn-primary" onclick="submitNewKegRequest()">New Keg</button>
-		<div class=page-title><h1>Keg List</h1>
-		<?php 
-			if (!empty($feedback))
-			echo'<div class="alert alert-'.$feedbackType.' " role="alert">'.$feedback.'</div>';
-			?></div>
-		<form id="kegEdit" class="kegEdit" action="kegs-edit.php" method="get">
-			<table class="info">
-								<?php do {
-									$keg_id = $row_kegList['keg_id'];		
-									$type = $row_kegList['type'];
-									$serial = $row_kegList['serial'];
-									$status = $row_kegList['status'];
-									$volume = $row_kegList['volume'];
-									$volumeTypeAbbrev = $row_kegList['volumeTypeAbbrev'];
-									$mfg = $row_kegList['mfg'];
-									$note = $row_kegList['note'];
-									$beerName = $row_kegList['beerName'];
-									$beer_id = $row_kegList['beer_id'];
-				$tap_id = $row_kegList['tap_id'];
-									?>
-								<thead>
-					<tr>
-						<th colspan="5">
-							Keg #<?php echo $keg_id; ?>
-						</th>
-					</tr>
-				</thead>
-				
-				<tbody>
-					<tr>
-						<td>Type:
-							<br /> <?php echo $type; ?></td>
-						
-						<td>Serial:
-							<br /> <?php echo $serial; ?></td>
-						
-						<td>Volume:
-							<br /> <?php echo $volume.' '.$volumeTypeAbbrev; ?></td>
-						
-						<td><span  class="status <?php statusColor ($status, $color); ?>"><?php echo $status.'<br/>Tap #'.$tap_id; ?></span></td>
-						
-						<td>
-							<button type="button" class="kegProcess btn btn-primary" data-toggle="modal" data-target="#kegProcessEdit" data-keg_id="<?php echo $keg_id ?>" data-action="edit">Edit Keg</button>
-						</td>
-					</tr>
-					
-					<tr>
-						<td>Mfg/Owner:
-							<br /> <?php echo $mfg; ?></td>
-						
-						<td>Note:
-							<br /><?php echo $note; ?></td>
-						
-						<td>Beer:
-							<br /> <?php echo (!empty($beerName)) ? $beerName:'No beer'; ?></td>
-						
-						<td><?php if ($status == 'Tapped'){?>
-							<button type="button" class="kegProcess btn btn-primary"   data-toggle="modal" data-target="#kegProcessKick" data-keg_id="<?php echo $keg_id ?>" data-action="kick">Kick Keg</button>		
-							<?php }elseif ($status == 'On Deck'){ ?>
-							<button type="button" class="kegProcess btn btn-primary" data-toggle="modal" data-target="#kegProcessTap" data-keg_id="<?php echo $keg_id ?>" data-action="tap">Tap Keg</button>		
-							<?php	}else{ echo'&nbsp;';} ?>
-						</td>
-						
-						<td>
-							<button type="button" class="kegProcess btn btn-primary"   data-toggle="modal" data-target="#kegProcessDelete" data-keg_id="<?php echo $keg_id ?>" data-action="delete">Delete Keg</button>
-						</td>
-					</tr>
-				</tbody>
-				<?php } while ($row_kegList = mysqli_fetch_assoc($kegList)); ?>
-			</table>
-			
-			<input type="hidden" class="action" name="action" value="" >
-			
-			<input type="hidden" class="keg_id" name="keg_id" value="" >
-		</form>
-		
-		
-	</div>
-	<?php 
-		if (!empty($feedback))
-		echo'<div class="alert alert-'.$feedbackType.' col-xs-8" role="alert">'.$feedback.'</div>';
-		?>
-	<!-- /container -->
-	<!-- Hidden Form to Process a Keg actions -->
-	<form id="kegProcess" class="kegProcess" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post">
-		<input type="hidden" class="action" name="action" value="">
-		
-		<input type="hidden" class="keg_id" name="keg_id" value="">
-		
-		<input type="hidden" class="tap_id" name="tap_id" value="">
-	</form>
-	<!-- Hidden Form to Process a New Keg Request -->
-	<form class="hidden" id="kegsNew" action="kegs-edit.php" method="get">
-		<input type="hidden" name="action" value="new">
-		
-		<input type="hidden" id="hiddenValue" name="keg_id" value="">
-	</form>
-	<!-- Bootstrap core JavaScript
-		================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/js/docs.min.js"></script>
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
-	<script type="text/javascript"  src="assets/js/kegs.js"></script>
-</body>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <title>Keg List</title>
+      <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
+      <!-- Bootstrap core CSS -->
+      <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+      <!-- Custom styles for this template -->
+      <link href="assets/css/custom.css" rel="stylesheet">
+   </head>
+   <body>
+      <!-- Modal HTML Kick Keg -->
+      <div id="keg-process-kick" class="modal fade">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h4 class="modal-title">Confirmation</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               </div>
+               <div class="modal-body">
+                  <p>Do you want to kick this keg?</p>
+                  <p class="text-warning"><small>This change cannot be undone.</small></p>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Kick</button>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Modal HTML Tap Keg -->
+      <div id="keg-process-tap" class="modal fade">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h4 class="modal-title">Confirmation</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               </div>
+               <div class="modal-body">
+                  <p>Do you want to tap this keg?</p>
+                  <form>
+                     <select class="form-control" name="list-tap-id" id="list-tap-id">
+                        <option>Choose a tap:</option>
+                        <?php do { 
+                           $list_tap_id = $row_free_taps['tap_id'];
+                           ?>
+                        <option data-keg_id="<?php echo $list_tap_id ?>" value="<?php echo $list_tap_id ?>"><?php echo $list_tap_id; ?></option>
+                        <?php } while ($row_free_taps = $free_taps->fetch(PDO::FETCH_ASSOC)); ?>	
+                     </select>
+                  </form>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Tap</button>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Modal HTML Delete Keg -->
+      <div id="keg-process-delete" class="modal fade">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h4 class="modal-title">Confirmation</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               </div>
+               <div class="modal-body">
+                  <p>Do you want to delete this keg?</p>
+                  <p class="text-warning"><small>This change cannot be undone.</small></p>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" onclick=" submitKegProcess()">Delete</button>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Modal HTML Edit Keg -->
+      <div id="keg-process-edit" class="modal fade">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h4 class="modal-title">Confirmation</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               </div>
+               <div class="modal-body">
+                  <p>Do you want to edit this keg?</p>
+                  <p class="text-warning"><small>This change cannot be undone.</small></p>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" onclick=" submitKegEdit()">Edit</button>
+               </div>
+            </div>
+         </div>
+      </div>
+      <?php include("assets/inc/navbar-header.inc"); ?>
+      <div class="container">
+         <div class="page-title">
+            <h1>Keg List</h1>
+            <?php 
+               if (!empty($feedback))
+               echo'<div class="alert alert-'.$feedback_type.' " role="alert">'.$feedback.'</div>';
+               ?>
+         </div>
+         <form id="keg-edit" class="keg-edit" action="kegs-edit.php" method="post">
+            <div class="info">
+               <?php do {
+                  $keg_id = $row_keglist['keg_id'];		
+                  $type = $row_keglist['display_name'];
+                  $keg_status_code = $row_keglist['status_code'];
+                  $beer_name = $row_keglist['beer_name'];
+                  $beer_id = $row_keglist['beer_id'];
+                  $serial = $row_keglist['serial'];
+                $make = $row_keglist['make'];
+                $model = $row_keglist['model'];
+                  $note = $row_keglist['note'];
+                  $tap_id = $row_keglist['tap_id'];
+                  ?>
+               <div class="row">
+                  <div class="col-md kegnum">Keg #<?php echo $keg_id; ?><br/><?php echo (!empty($beer_name)) ? $beer_name:'No beer'; ?>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-md-3 hidden-sm-down type">Type:&nbsp;<?php echo $type; ?></div>
+                  <div class="col-md-3 hidden-sm-down serial">Serial:&nbsp;<?php echo $serial; ?></div>
+                  <div class="col-md-3 keg-status-code">
+                     <div class="card card-inverse h-25 text-center <?php statusColor ($keg_status_code, $color); ?>">
+                        <div class="card-block">
+                           <?php echo $keg_status_code;
+                              if ($keg_status_code == 'Tapped'){
+                              	echo '&#8212;Tap #'.$tap_id;
+                              	}
+                              ?>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3 tap-action"><?php if ($keg_status_code == 'Tapped'){?>
+                     <button type="button" class="keg-process btn btn-outline-warning" data-toggle="modal" data-target="#keg-process-kick" data-keg_id="<?php echo $keg_id ?>" data-action="kick"><span class="fa fa-exclamation-triangle" aria-hidden="true"></span>Kick Keg</button>	
+                     <?php }elseif ($keg_status_code == 'On Deck'){ ?>
+                     <button type="button" class="keg-process btn btn-outline-primary" data-toggle="modal" data-target="#keg-process-tap" data-keg_id="<?php echo $keg_id ?>" data-action="tap"><span class="fa fa-beer" aria-hidden="true"></span>Tap Keg</button>
+                     <?php	}else{ echo'&nbsp;';} ?>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-md-3 hidden-sm-down make">Make:&nbsp;<?php echo $make; ?></div>
+                  <div class="col-md-3 hidden-sm-down mfg">Model:&nbsp;<?php echo $model; ?></div>
+                  <div class="col-md-3 edit">
+                     <button type="button" class="keg-process btn btn-outline-success" data-toggle="modal" data-target="#keg-process-edit" data-keg_id="<?php echo $keg_id ?>" data-action="edit"><span class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></span>Edit Keg</button>
+                  </div>
+                  
+                  <div class="col-md-3 delete">
+                     <button type="button" class="keg-process btn btn-outline-danger"  data-toggle="modal" data-target="#keg-process-delete" data-keg_id="<?php echo $keg_id ?>" data-action="delete"><span class="fa fa-trash-o fa-lg" aria-hidden="true"></span>Delete Keg</button>
+                  </div>
+               </div>
+               <div class="row">
+               <div class="col-md-6 hidden-sm-down note">Note:&nbsp;<?php echo $note; ?></div>
+                  
+               </div>
+               <?php } while ($row_keglist = $keglist->fetch(PDO::FETCH_ASSOC)); ?>
+            </div>
+            <input type="hidden" class="action" name="action" value="" >
+            <input type="hidden" class="keg-id" name="keg_id" value="" >
+         </form>
+      </div>
+      <!-- /container -->
+      <!-- Hidden Form to Process a Keg actions -->
+      <form id="keg-process" class="keg-process" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post">
+         <input type="hidden" class="action" name="action" value="">
+         <input type="hidden" class="keg-id" name="keg_id" value="">
+         <input type="hidden" class="tap-id" name="tap_id" value="">
+      </form>
+      <!-- Hidden Form to Process a New Keg Request -->
+      <form class="hidden" id="kegs-new" action="kegs-edit.php" method="post">
+         <input type="hidden" name="action" value="new">
+         <input type="hidden" id="hiddenValue" name="keg_id" value="">
+      </form>
+      <!-- Bootstrap core JavaScript
+         ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
+      <script src="assets/js/bootstrap.min.js"></script>
+      <script src="assets/js/docs.min.js"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+      <script type="text/javascript"  >
+         function submitKegEdit() {
+         document.getElementById("keg-edit").submit();
+         }
+         
+         function submitNewKegRequest() {
+         document.getElementById("kegs-new").submit();
+         }
+         
+         function submitKegProcess() {
+         var tap_id = document.getElementById('list-tap-id').value;
+         $(".keg-process .tap-id").val(tap_id);
+         document.getElementById("keg-process").submit();
+         }
+         		 						 
+         // Get keg_id from Keg buttons & send to Hidden Inputs 						 
+         $(document).ready(function() {
+         $(".keg-process").click(function() {
+         var keg_id = $(this).data('keg_id');
+         var action = $(this).data('action');
+         $(".keg-process .keg-id").val(keg_id);
+         $(".keg-process .action").val(action);
+         $(".keg-edit .keg-id").val(keg_id);
+         $(".keg-edit .action").val(action);
+         })
+         });	
+      </script>
+   </body>
 </html>
