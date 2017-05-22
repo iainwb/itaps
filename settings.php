@@ -17,7 +17,7 @@ $query_tap_count = "SELECT COUNT(tap_status.tap_id)
 $tap_count = $conn->query($query_tap_count);
 $row_tap_count = $tap_count->fetch(PDO::FETCH_ASSOC);
 $tap_count = $row_tap_count['tap_count'];
-//echo 'Tap count: ' . $tap_count . '<br/>';
+echo 'Tap count: ' . $tap_count . '<br/>';
 
 // Pull settings data
 
@@ -37,6 +37,7 @@ $result = $config_info->fetchAll(PDO::FETCH_ASSOC);
 
 $header_text =  $result[9]['config_value'];
 $number_of_taps = $result[10]['config_value'];
+echo 'number_of_taps-config---'.$number_of_taps.'<br/>';
 
 // If update submitted, validate data
 
@@ -150,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = 'UPDATED successfully';
 						$feedback_type = 'success';
 		
-						 header("Refresh:3; url=settings.php", true, 303);
+	//					 header("Refresh:3; url=settings.php", true, 303);
 		
 						}
 		
@@ -159,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = $sql . "<br />" . $e->getMessage();
 						$feedback_type = 'danger';
 		
-						 header("Refresh:5; url=settings.php", true, 303);
+			//			 header("Refresh:5; url=settings.php", true, 303);
 		
 						}
 
@@ -170,8 +171,8 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 		//		Used for diagnostics
 
-		//echo 'Taps Difference: ' . $taps_difference, '<br/>';
-		//echo ($taps_difference < 0 ? 'negative-true<br/>' : 'positive or 0<br/>');
+		echo 'Taps Difference: ' . $taps_difference, '<br/>';
+		echo ($taps_difference < 0 ? 'negative-true<br/>' : 'positive or 0<br/>');
 
 		// If there is a change, add or delete rows in taps table
 
@@ -182,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 			if ($taps_difference > 0)
 				{
-				$tap_amount = $taps_required;
+				$number_of_taps = $taps_required;
 				for ($x = 1; $x <= $taps_difference; $x++)
 					{
 					try
@@ -191,8 +192,8 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						// set the PDO error mode to exception
 
 						$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				//		echo 'add ' . $tap_number = $x + $tap_count;
-						$sql = "INSERT INTO tap_status(tap_id) VALUES ($tap_number)";
+						echo 'add ' . $number_of_taps = $x + $tap_count;
+						$sql = "INSERT INTO tap_status(tap_id) VALUES ($number_of_taps)";
 
 						// use exec() because no results are returned
 
@@ -219,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 			if ($taps_difference < 0)
 				{
-				$tap_amount = $taps_required;
+				$number_of_taps = $taps_required;
 				$taps_difference = abs($taps_difference);
 				for ($x = 1; $x <= $taps_difference; $x++)
 					{
@@ -231,7 +232,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 						$tap_number = $x + $taps_required;
 				//		echo 'delete ' . $tap_number.' ';
-						$sql = "DELETE FROM tap_status WHERE tap_id=$tap_number";
+						$sql = "DELETE FROM tap_status WHERE tap_id=$number_of_taps";
 
 						// use exec() because no results are returned
 
@@ -239,7 +240,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = 'Record updated successfully';
 						$feedback_type = 'success';
 
-						   header("Refresh:2; url=settings.php", true, 303);
+			//			   header("Refresh:2; url=settings.php", true, 303);
 
 						}
 
@@ -249,7 +250,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback_type = 'danger';
 						echo $sql . "<br />" . $e->getMessage();
 
-						  header("Refresh:4; url=settings.php", true, 303);
+			//			  header("Refresh:4; url=settings.php", true, 303);
 
 						}
 					}
@@ -277,7 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 					$feedback = 'UPDATED successfully';
 					$feedback_type = 'success';
 
-					 header("Refresh:3; url=settings.php", true, 303);
+		//			 header("Refresh:3; url=settings.php", true, 303);
 
 					}
 
@@ -286,7 +287,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 					$feedback = $sql . "<br />" . $e->getMessage();
 					$feedback_type = 'danger';
 
-					 header("Refresh:5; url=settings.php", true, 303);
+		//			 header("Refresh:5; url=settings.php", true, 303);
 
 					}
 				}
