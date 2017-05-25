@@ -1,5 +1,5 @@
 /* @override 
-	http://itaps.loc/assets/css/taplist.css
+	http://itaps.loc/assets/css/taplist-modern.css
 	*/
 /* CSS Document */
 
@@ -12,12 +12,14 @@ body {
 	padding: 0;
 	background-size: cover;
 	overflow: hidden;
-	color: #fff;
+	color: #333;
 	font-size: 1em;
 //	font-family: 'Quicksand', sans-serif;
 //	font-family: 'Roboto Condensed', sans-serif; 
 	font-family: 'Raleway', sans-serif;
-	background: url(/assets/img/black-linen.jpg);
+//	font-family: 'Cabin', sans-serif;
+//	font-family: 'Poppins', sans-serif;
+	background: url(/assets/img/gray-linen.png);
 }
 
 h1, h2, h3, h4, ul, li, div, form, p {
@@ -48,18 +50,24 @@ hr {
 }
 
 .top {
+	background-color: rgba(51, 51, 51, 0.75);
+	color: #fff;
 	justify-content: center;
 	align-items: center;
 }
 
+.top-ident {
+	border-bottom: 1px solid #fff;
+}
+
+
 .now-serving {
-	color: #fff;
 	font-size: 2.5rem;
 	text-align: center;
 }
 
 div.row.headings {
-	background-color: gray;
+	background-color: rgba(42, 42, 42, 0.25);
 	color: #fff;
 	text-align: center;
 	flex-wrap: nowrap;
@@ -79,7 +87,6 @@ div.tap-num {
 }
 
 div.og-color {
-	border-right: 1px dotted #fff;
 	display: flex;
 	flex-direction: column;
 	border-right: 1px dotted #fff;
@@ -90,7 +97,6 @@ div.og-color {
 }
 
 div.ibu {
-	border-right: 1px dotted #fff;
 	display: flex;
 	flex-direction: column;
 	border-right: 1px dotted #fff;
@@ -100,7 +106,12 @@ div.ibu {
 }
 
 div.name {
+	display: flex;
+	flex-direction: column;
 	border-right: 1px dotted #fff;
+	text-align: center;
+	align-self: stretch;
+	justify-content: center;
 }
 
 div.abv {
@@ -120,33 +131,32 @@ h3 {
 }
 
 span.tapcircle {
-	border-radius: 1em;
-  	-moz-border-radius: 1em;
-  	-webkit-border-radius: 1em;
-  	width: 2em;
-  	line-height: 2em;
-  	font-size: 1.25rem;
-  	display: inline-block;
-  	font-weight: bold;
-  	margin-right: 5px;
-  	margin-left: 5px;
-  	text-align: center;
+	min-width: 2rem;
+	line-height: 2rem;
+	font-size: 1.25rem;
+	font-weight: bold;
+	text-align: center;
 	background-color: gray;
 	color: #fff;
 	align-self: center;
+	text-align: center;
+	font-family: 'Cabin', sans-serif;
 }
 
 h1.beer-name {
-	background-color: gray;
+	background-color: rgba(255, 255, 255, 0.80);
 	padding: .25em .25em;
 	margin-top: .25em;
 	font-size: 1.5rem;
+	font-weight: bold;
+	
 }
 
 h2.beer-style {
 	text-align: left;
 	padding: .25em .25em;
 	font-size: 1.25rem;
+	font-weight: bold;
 }
 
 p.tasting-notes {
@@ -156,17 +166,17 @@ p.tasting-notes {
 }
 
 div.beer-info.row:nth-child(even) {
-	background: rgba(192, 192, 192, 0.25) !important;
+	background: rgba(255, 255, 255, 0.5) !important;
 }
 
 div.beer-info.row:nth-child(odd) {
-	background: rgba(51, 51, 51, 0.25) !important;
+	background: rgba(228, 228, 228, 0.5) !important;
 }
 
 /* @group img containers */
 .srm-container{
 	position: relative;
-	height: 100px;
+	height: 50px;
 	width: 55px;
 	margin: 0 auto;
 }
@@ -178,11 +188,11 @@ div.beer-info.row:nth-child(odd) {
 	top: 0;
 	left: 0;
 	z-index: 1;
+	border-radius: 4rem;
+	width: 3.25rem;
+	border: 1px solid #333;
+		
 	
-	-webkit-mask-image: url(../../assets/img/srm/pint-mask.png);
-	-o-mask-image: url(../../assets/img/srm/pint-mask.png);
-	-moz-mask-image: url(../../assets/img/srm/pint-mask.png);
-	mask-image: url(../../assets/img/srm/pint-mask.png);
 }
 
 .srm-stroke{
@@ -192,14 +202,14 @@ div.beer-info.row:nth-child(odd) {
 	top: 0;
 	left: 0;
 	z-index: 2;
-	background: url(../../assets/img/srm/pint-stroke.png) no-repeat bottom left;
 }
 
 .ibu-container{
 	position: relative;
-	height:100px;
-	width:55px;
+	height:4rem;
+	width: 2rem;
 	margin: 0 auto;
+	border: 1px solid #333;
 }
 
 .ibu-indicator{
@@ -208,15 +218,17 @@ div.beer-info.row:nth-child(odd) {
 	left: 0;
 	height: 100%;
 	width: 100%;
-	background: url(../../assets/img/ibu/stroke.png) no-repeat bottom left;
+	background-color: #fff;
+	
 }
 
 .ibu-indicator .ibu-full{
 	position: absolute;
+	background-color: #02fa02;
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background: url(../../assets/img/ibu/full.png) no-repeat bottom left;
+		
 }
 	
 .ibu-max{
@@ -227,34 +239,19 @@ div.beer-info.row:nth-child(odd) {
 
 .abv-container{
 	position: relative;
-	height:100px;
-	width:55px;
+	height:4rem;
+	width:2rem;
 	margin: 0 auto;
+	border: 1px solid #333;
+	background-color: #fff;
 }	
-
-.abv-indicator{
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	height: 100%;
-	width: 100%;
-	background: url(../../assets/img/abv/stroke.png) no-repeat bottom left;
-}
 
 .abv-indicator .abv-full{
 	position: absolute;
+	background-color: #fcd649;
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background: url(../../assets/img/abv/full.png) no-repeat bottom left;
 }
 
-.abv-offthechart{
-	position: absolute;
-	bottom: -2px;
-	left: 8px;
-	height: 55px;
-	width: 114px;
-	background: url(../../assets/img/abv/offthechart.png) no-repeat bottom left;	
-}
 /* @end */
