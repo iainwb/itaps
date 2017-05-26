@@ -1,7 +1,10 @@
 
 <?php
    include ('assets/inc/func.inc');
-   require_once ('Connections/itaps_conn.php');
+   require_once ('connections/itaps_conn.php');
+   
+   //include config
+   require_once('assets/inc/config.php'); 
    
    //include config
    require_once('assets/inc/config.php'); 
@@ -38,10 +41,10 @@ ON bjcp_styles.style_number = beers.style_number_fk";
      //define page title
      $title = 'Beer List';
      
-     //include header template
-     require('assets/inc/header.php');
+     //include html header template
+     require('assets/inc/html-header.php');
    ?>
-
+<body>
       <!-- Modal HTML Delete Beer -->
       <div id="beer-process-delete" class="modal fade">
          <div class="modal-dialog">
@@ -134,51 +137,9 @@ ON bjcp_styles.style_number = beers.style_number_fk";
          <input type="hidden" name="action" value="new">
          <input type="hidden" name="beer_id" value="">
       </form>
-      <!-- Bootstrap core JavaScript
-         ================================================== -->
-      <!-- Placed at the end of the document so the pages load faster -->
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-      <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-      <script src="assets/js/bootstrap.min.js"></script>
-      <script src="assets/js/docs.min.js"></script>
-      <script type="text/javascript">
-         function submitBeerEdit()
-         {
-         document.getElementById("beer-edit").submit();
-         }
-         		
-         function submitBeerNew()
-         {
-         document.getElementById("beer-new").submit();
-         }
-         
-         function submitBeerProcess()
-         {
-         document.getElementById("beer-process").submit();
-         }
-            
-      </script>
-      <script type="text/javascript">								 
-         // Get beer_id from beer buttons & send to Hidden Inputs 						 
-            $(document).ready(function(){
-                $(".beer-process").click(function () {
-         var beer_id = $(this).data('beer_id');
-         var action = $(this).data('action');
-           
-         $(".beer-process .beer-id").val(beer_id);
-         $(".beer-process .action").val(action);
-         
-         $(".beer-edit .beer-id").val(beer_id);
-         $(".beer-edit .action").val(action);
-                })
-            });							 
-      </script>
-   </body>
-   <fieldset disabled>
-      <a href="" disabled="disabled"></a>
-      <select disabled="disabled">
-         <option></option>
-      </select>
-      <input type="hidden" name="D">
-   </fieldset>
-</html>
+  <?php    //include html footer template
+      require('assets/inc/html-footer.php');   
+      ?>
+      
+      </body>
+   </html>

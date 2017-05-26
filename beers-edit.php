@@ -1,7 +1,6 @@
-<!DOCTYPE html>
 <?php 
 	include('assets/inc/func.inc');
-	require_once('Connections/itaps_conn.php');
+	require_once('connections/itaps_conn.php');
 		
 	// declare variables and set to empty/placeholder values
 	
@@ -20,8 +19,9 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 	{
 	$beer_id = $_POST['beer_id'];
 	$action = $_POST['action'];
-	echo 'POST action= ' . $_POST['action'].'<br/>';
-	echo 'POST beer_id= ' . $_POST['beer_id'].'<br/>';
+
+//	echo 'POST action= ' . $_POST['action'].'<br/>';
+//	echo 'POST beer_id= ' . $_POST['beer_id'].'<br/>';
 	
 	}
 //else
@@ -37,7 +37,6 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 
 if ($action == 'delete')
 	{
-		
 		$action = $_POST['action'];
 		$beer_id = $_POST['beer_id'];
 			
@@ -66,7 +65,9 @@ if ($action == 'delete')
 
 if (isset($_POST['form_action']))
 	{
-	echo 'POST form_action= ' . $_POST['form_action'].'<br/>';
+
+//	echo 'POST form_action= ' . $_POST['form_action'].'<br/>';
+
 	$form_action = $_POST['form_action'];
 		
 //	echo 'POST form action= ' . $_POST['form_action'].'<br/>';
@@ -172,6 +173,14 @@ if (isset($_POST['form_action']))
 				$ibu = '';
 				$ibu_err = "IBU be entered in ##.## format";
 				}
+				
+				if ($ibu > 200 || $ibu < 1)
+					{
+					$srm_decimal_err_input = 'inputHorizontalWarning';
+					$srm_decimal_err_state = 'warning';
+					$srm_decimal = '';
+					$srm_decimal_err = "IBU must between 1 and 200.";
+					}
 			}
 
 		// Check if SRMerr_state been entered
@@ -193,7 +202,15 @@ if (isset($_POST['form_action']))
 				$srm_decimal_err_input = 'inputHorizontalWarning';
 				$srm_decimal_err_state = 'warning';
 				$srm_decimal = '';
-				$srm_decimal_err = "SRM be entered in ##.## format";
+				$srm_decimal_err = "SRM must be entered in ##.## format";
+				}
+				
+			if ($srm_decimal > 40 || $srm_decimal < 1)
+				{
+				$srm_decimal_err_input = 'inputHorizontalWarning';
+				$srm_decimal_err_state = 'warning';
+				$srm_decimal = '';
+				$srm_decimal_err = "SRM must between 1 and 40.";
 				}
 			}
 
@@ -260,19 +277,19 @@ if (isset($_POST['form_action']))
 
 				// echo a message to say the UPDATE succeeded
 
-				$feedback = $stmt->rowCount() . " records UPDATED successfully";
+				$feedback = 'Update successful';
 				$feedback_type = 'success';
 
-				// header("Refresh:3; url=beers.php", true, 303);
+				 header("Refresh:3; url=beers.php", true, 303);
 
 				}
 
 			catch(PDOException $e)
 				{
-				$feedback = $sql . "<br />" . $e->getMessage();
+				$feedback = $sql . '<br>' . $e->getMessage();
 				$feedback_type = 'danger';
 
-				// header("Refresh:5; url=beers.php", true, 303);
+				 header("Refresh:5; url=beers.php", true, 303);
 
 				}
 		}
@@ -281,7 +298,6 @@ if (isset($_POST['form_action']))
 
 		if ($action == 'new' || $action == 'import')
 			{
-			echo 'Style Number---'.$style_number.'<br/>';
 			try
 				{
 
@@ -290,8 +306,10 @@ if (isset($_POST['form_action']))
 				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				
 				// prepare sql and bind parameters
-				    $stmt = $conn->prepare("INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) 
-				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note)");
+
+				    $stmt = $conn->prepare('INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) 
+				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note)');
+
 				    $stmt->bindParam(':beer_name', $beer_name);
 				    $stmt->bindParam(':style_number_fk', $style_number);
 				    $stmt->bindParam(':og', $og);
@@ -307,16 +325,18 @@ if (isset($_POST['form_action']))
 				$feedback = 'Record created successfully';
 				$feedback_type = 'success';
 
-				// header("Refresh:3; url=beers.php", true, 303);
+				 header("Refresh:2; url=beers.php", true, 303);
 
 				}
 
 			catch(PDOException $e)
 				{
-				$feedback =  "Error:<br />" . $e->getMessage();
+
+				$feedback =  'Error:<br />' . $e->getMessage();
+
 				$feedback_type = 'danger';
 
-				// header("Refresh:5; url=beers.php", true, 303);
+				 header("Refresh:5; url=beers.php", true, 303);
 
 				}
 			}
@@ -410,22 +430,15 @@ $ibu = $xml->RECIPE[0]->IBU;
 	}
 	else{$action_title = '<h1 class="action-title">Add A New Beer</h1>';}
 	
-	?>
 
-<html lang="en">
-	<head>
-	   <meta charset="utf-8">
-	   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	   <meta name="description" content="">
-	   <meta name="author" content="">
-	   <title>Beers-Edit</title>
-	   <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-	   <link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
-	   <!-- Bootstrap core CSS -->
-	   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-	   <!-- Custom styles for this template -->
-	   <link href="assets/css/custom.css" rel="stylesheet">
-	</head>
+
+//define page title
+$title = 'Edit/Add Beers';
+
+//include html header template
+require('assets/inc/html-header.php');
+?>
+
 	<body>
 	<!-- Modal HTML import Beer -->
 	<div id="beer-process-import" class="modal fade">
@@ -460,7 +473,9 @@ $ibu = $xml->RECIPE[0]->IBU;
 				
 				    
 				<div class="form-group row has-<?php echo $beer_name_err_state?>">
-					<label for="<?php echo $beer_name_err_input ?>" class="col-md-2 col-form-label" for="beer_name">Beer Name: </label>
+
+					<label for="<?php echo $beer_name_err_input ?>" class="col-md-2 col-form-label">Beer Name: </label>
+
 					<div class="col-md-8">
 						<input id="<?php echo $beer_name_err_input ?>" class="form-control form-control-<?php echo $beer_name_err_state?>" type="text" name="beer_name" placeholder="<?php
 						 echo $beer_name_err ?>" value="<?php
@@ -483,10 +498,6 @@ $ibu = $xml->RECIPE[0]->IBU;
 					</div>
 				</div>
 				
-			
-				    
-				    
-				    
 				<div class="form-group row has-<?php echo $og_err_state?>">
 					<label for="<?php echo $og_err_input ?>" class="col-md-2 col-form-label" for="og">OG: </label>
 					<div class="col-md-8">
@@ -529,8 +540,7 @@ $ibu = $xml->RECIPE[0]->IBU;
 						  echo $srm_decimal;?>">
 					</div>
 				</div>
-				
-				
+						
 				
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label" for="note">Note:</label>
@@ -585,23 +595,9 @@ $ibu = $xml->RECIPE[0]->IBU;
 			echo "<br>";
 			echo 'success? '. $success;
 			-->
-		<!-- Bootstrap core JavaScript
-			================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-		<script src="assets/js/bootstrap.min.js"></script>
-		<script src="assets/js/docs.min.js"></script>
-		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-		<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
-		<script type="text/javascript">
-		
-		   
-		   function submitBeerImport()
-		   {
-		   document.getElementById("beer-import").submit();
-		   }
-		      
-		</script>
+
+		<?php    //include html footer template
+		    require('assets/inc/html-footer.php');   
+		    ?>
 	</body>
 </html>

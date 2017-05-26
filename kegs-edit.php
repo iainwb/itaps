@@ -1,19 +1,18 @@
-<!DOCTYPE html>
 <?php 
 	include('assets/inc/func.inc');
-	require_once('Connections/itaps_conn.php');
+	require_once('connections/itaps_conn.php');
 	
 	// declare variables and set to empty/placeholder values
 	
 	$keg_id_err = 'Required';
-	$keg_id = $keg_id_err_span = $keg_id_err_class = '';
-	$type = $type_err_span = $type_err_class = '';
-	$beer = $beer_id = $beer_err_span = $beer_err_class = '';
-	$serial = $serial_err_span = $serial_err_class = '';
-	$make = $make_err_span = $make_err_class = '';
-	$model = $model_err_span = $model_err_class = '';
-	$status_id = $status = $status_err_span = $status_err_class = '';
-	$volume = $volume_err_span = $volume_err_class = '';
+	$keg_id = $keg_id_err_input = $keg_id_err_state = '';
+	$type = $type_err_input = $type_err_state = '';
+	$beer = $beer_id = $beer_err_input = $beer_err_state = '';
+	$serial = $serial_err_input = $serial_err_state = '';
+	$make = $make_err_input = $make_err_state = '';
+	$model = $model_err_input = $model_err_state = '';
+	$status_id = $status = $status_err_input = $status_err_state = '';
+	$volume = $volume_err_input = $volume_err_state = '';
 	$keg_id = $new_keg_id = $form_action = $action = $action_title = $style_number = $note = $update = $method = $feedback = $feedback_type = $keg_ids_array = $keg_type_id = $row_keg_type = $form_action = '';
 	
 	// Have an action and keg id been posted: yes-carry on, no return to keg list with an error
@@ -47,7 +46,7 @@
 						
 						   					 // use exec() because no results are returned
 						    $conn->exec($sql);
-						    $feedback = 'Record updated successfully';
+						    $feedback = 'Update successful';
 						    $feedback_type = 'success';
 						    header("Refresh:4; url=kegs.php", true, 303);
 						    }
@@ -88,9 +87,9 @@
 	     
 	     	if (empty($_POST["new_keg_id"]) && $action == 'new')
 	     		{
-	     		$keg_id_err_span = '<span class="error glyphicon glyphicon-remove form-control-feedback"></span>';
-	     		$keg_id_err_class = ' has-danger';
-	     		$keg_id_err = 'Keg Number is required';
+	     		$keg_id_err_input = 'inputHorizontalDanger';
+	     		$keg_id_err_state = 'danger';
+	     		$keg_id_err = 'Keg Number is required.';
 	     		}
 	     	  else
 	     		{
@@ -102,27 +101,27 @@
 	     
 	     		if (!preg_match("/^[1-9]*$/", $new_keg_id))
 	     			{
-	     			$keg_id_err_span = '<span class="error glyphicon glyphicon-remove form-control-feedback"></span>';
-	     			$keg_id_err_class = ' has-warning';
+	     			$keg_id_err_input = 'inputHorizontalWarning';
+	     			$keg_id_err_state = 'warning';
 	     			$keg_id = '';
-	     			$keg_id_err = 'Only numbers allowed';
+	     			$keg_id_err = 'Only numbers allowed.';
 	     			}
 	     		  else
 	     			{
 						
 	     			if (in_array($new_keg_id, $keg_ids_array) && $action == 'new')
 	     				{
-	     				$keg_id_err_span = '<span class="error glyphicon glyphicon-remove form-control-feedback"></span>';
-	     				$keg_id_err_class = ' has-warning';
+	     				$keg_id_err_input = 'inputHorizontalWarning';
+	     				$keg_id_err_state = 'warning';
 	     				$keg_id = '';
-	     				$keg_id_err = 'Keg number in use, please choose another';
+	     				$keg_id_err = 'Keg number in use, please choose another.';
 	     				}
 	     			}
 	     		}
 	     
 	     	// Check if serial # has been entered
 	     
-	     	if (empty($_POST["serial"]))
+	     	if (empty($_POST['serial' ]))
 	     		{
 	     		$serial = '';
 	     		}
@@ -169,7 +168,7 @@
 	     
 	     	// Check for errors and set error messages
 	     
-	     	if ((!empty($keg_id_err_span)) || (!empty($volumeerr_span)))
+	     	if ((!empty($keg_id_err_input)) || (!empty($volumeerr_span)))
 	     		{
 	     		$_POST['keg_id'] = $keg_id;
 	     		$feedback = 'Data not updated, please correct errors.';
@@ -216,7 +215,7 @@
 	     			
 	     							// echo a message to say the UPDATE succeeded
 	     			
-	     							$feedback = $stmt->rowCount() . " records UPDATED successfully";
+	     							$feedback = 'Update successful';
 	     							$feedback_type = 'success';
 	     			
 	     							 header("Refresh:2; url=kegs.php", true, 303);
@@ -224,12 +223,51 @@
 	     							}
 	     							catch(PDOException $e)
 	     											{
-	     											$feedback = $sql . "<br />" . $e->getMessage();
+	     											$feedback = $sql . '<br />' . $e->getMessage();
 	     											$feedback_type = 'danger';
 	     							
 	     											 header("Refresh:5; url=kegs.php", true, 303);
 	     							
 	     											}
+	     						try		{
+	     							
+	     											// set the PDO error mode to exception
+	     							
+	     											$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	     							
+	     							$sql = "UPDATE
+	     							tap_status, kegs
+	     							SET
+	     							tap_status.keg_id_fk = NULL,
+	     							kegs.beer_id_fk = NULL,
+	     							kegs.status_id_fk = 3
+	     							WHERE
+	     							tap_status.keg_id_fk = kegs.keg_id AND tap_status.keg_id_fk = '$new_keg_id'";
+	     							
+	     											// Prepare statement
+	     									
+	     													$stmt = $conn->prepare($sql);
+	     									
+	     													// execute the query
+	     									
+	     													$stmt->execute();
+	     									
+	     													// echo a message to say the UPDATE succeeded
+	     									
+	     													$feedback = 'Update successful';
+	     													$feedback_type = 'success';
+	     									
+	     													 header("Refresh:2; url=kegs.php", true, 303);
+	     									
+	     													}
+	     									
+	     												catch(PDOException $e)
+	     													{
+	     													$feedback = $sql . "<br />" . $e->getMessage();
+	     													$feedback_type = 'danger';
+	     									
+	     													 header("Refresh:4; url=kegs.php", true, 303);
+	     													}
 	     			
 	     			}
 	     
@@ -368,22 +406,14 @@
 	}else{$actionTitle = '<h1 class="action-title">Add A New Keg</h1>';}
 	 
 	      
-	?>
-<html lang="en">
-<head>
-   <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   <meta name="description" content="">
-   <meta name="author" content="">
-   <title>Keg List</title>
-   <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-   <link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
-   <!-- Bootstrap core CSS -->
-   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-   <!-- Custom styles for this template -->
-   <link href="assets/css/custom.css" rel="stylesheet">
-</head>
-	<body>
+	
+//define page title
+$title = 'Edit/Add Kegs';
+
+//include htnl header template
+require('assets/inc/html-header.php');	
+?>
+<body>
 		<!-- Modal HTML -->
 		<div id="myModal" class="modal fade">
 			<div class="modal-dialog">
@@ -412,23 +442,24 @@
 					?>
 			</div>
 			<form class="form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+			
 				<?php if ($action == 'edit'){?>
-				<div class="form-group row <?php echo $keg_id_err_class?>">
-					<label  class="col-3 col-form-label" for="keg_id">Keg #:</label>
+				<div class="form-group row has-<?php echo $keg_id_err_state?>">
+					<label for="<?php echo $keg_id_err_input ?> class="col-3 col-form-label" ">Keg #:</label>
 					<div class="col-8">
 						<input type="hidden" name="new_keg_id" value="<?php echo $keg_id;?>">
 						<p class="form-control-static"><?php echo $keg_id;?></p>
 					</div>
 				</div>
 				<?php ;}else{?>
-				<div class="form-group row <?php echo $keg_id_err_class?>">
-					<label  class="col-3 col-form-label" for="keg_id">Keg #:</label>
+				<div class="form-group row has-<?php echo $keg_id_err_state?>">
+					<label for="<?php echo $keg_id_err_input?>" class="col-3 col-form-label">Keg #:</label>
 					<div class="col-8">
 						<input class="form-control" type="text" id="new-keg-id" name="new_keg_id" placeholder="<?php echo $keg_id_err ?>" value="<?php echo $keg_id;?>">
-						<?php echo $keg_id_err_span;?>
 					</div>
 				</div>
 				<?php ;} ?>
+				
 				<div class="form-group row">
 					<label  class="col-3 col-form-label" for="type">Type:</label>
 					<div class="col-8">
@@ -442,7 +473,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="form-group row <?php echo $status_err_class?>">
+				<div class="form-group row <?php echo $status_err_state?>">
 					<label class="col-3 col-form-label" for="style">Status: </label>
 					<div class="col-8">
 						<select class="form-control" name="status_id" id="status-id">
@@ -453,10 +484,10 @@
 							<option value="<?php echo $list_status_id ?>"<?php if($status_id == $list_status_id) echo 'selected' ?>><?php echo $list_status; ?></option>
 							<?php } while ($row_keg_status = $keg_status->fetch(PDO::FETCH_ASSOC)); ?>	
 						</select>
-						<?php echo $type_err_span;?>
+						<?php echo $type_err_input;?>
 					</div>
 				</div>
-				<div class="form-group row <?php echo $beer_err_class?>">
+				<div class="form-group row <?php echo $beer_err_state?>">
 					<label class="col-3 col-form-label" for="style">Beer: </label>
 					<div class="col-8">
 						<select class="form-control" name="beer_id" id="beer-id">
@@ -468,23 +499,23 @@
 							<option value="<?php echo $list_beer_id ?>"<?php if($beer_id == $list_beer_id) echo 'selected' ?>><?php echo $list_beer_name; ?></option>
 							<?php } while ($row_beers = $beers->fetch(PDO::FETCH_ASSOC)); ?>	
 						</select>
-						<?php echo $beer_err_span;?>
+						<?php echo $beer_err_input;?>
 					</div>
 				</div>
-				<div class="form-group row <?php echo $serial_err_class?>">
+				<div class="form-group row <?php echo $serial_err_state?>">
 					<label  class="col-3 col-form-label" for="serial">Serial #: </label>
 					<div class="col-8">
 						<input class="form-control" type="text" id="serial" name="serial" placeholder="Optional" value="<?php echo $serial;?>">
-						<?php echo $serial_err_span;?>
+						<?php echo $serial_err_input;?>
 					</div>
 				</div>
-				<div class="form-group row <?php echo $make_err_class?>">
+				<div class="form-group row <?php echo $make_err_state?>">
 					<label  class="col-3 col-form-label" for="make">Make: </label>
 					<div class="col-8">
 						<input class="form-control" type="text" id="make" name="make" placeholder="Optional" value="<?php echo $make;?>">
 					</div>
 				</div>
-				<div class="form-group row <?php echo $model_err_class?>">
+				<div class="form-group row <?php echo $model_err_state?>">
 					<label  class="col-3 col-form-label" for="model">Model: </label>
 					<div class="col-8">
 						<input class="form-control" type="text" id="model" name="model" placeholder="Optional" value="<?php echo $model;?>">
@@ -540,15 +571,8 @@
 				  echo "<br>";
 			
 			-->
-		<!-- Bootstrap core JavaScript
-			================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="https://ajax.goserialleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-		<script src="assets/js/bootstrap.min.js"></script>
-		<script src="assets/js/docs.min.js"></script>
-		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-		<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
-		<script type="text/javascript" src="assets/js/kegs-edit.js"></script>
+<?php    //include html footer template
+    require('assets/inc/html-footer.php');   
+    ?>
 	</body>
 </html>

@@ -1,7 +1,7 @@
 <!doctype html>
 <?php
 	include('assets/inc/func.inc');
-	require_once('Connections/itaps_conn.php');
+	require_once('connections/itaps_conn.php');
 	
 	$query_config_info = "SELECT
 	 config.config_id,
@@ -22,6 +22,7 @@
 	$show_abv_col = $config_list[3]['config_value'];
 	$show_abv_img = $config_list[4]['config_value'];
 	$header_text = $config_list[9]['config_value'];
+	$current_theme = $config_list[14]['config_value'];
 	$a = $b = $c = $d = 0;
 	$name_width = '';
 	
@@ -73,9 +74,11 @@
 		<!-- Bootstrap core CSS -->
 		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
 		<!-- Custom styles for this template -->
-		<link href="assets/css/taplist.css" rel="stylesheet" type="text/css">
+		<link href="assets/css/<?php  echo ($current_theme == 0 ? 'taplist.css' : 'taplist-modern.css'); ?>" rel="stylesheet" type="text/css">
 		<!-- <link href="assets/css/high-res.css" rel="stylesheet" type="text/css"> -->
-		<link href="https://fonts.googleapis.com/css?family=Quicksand|Raleway|Roboto+Condensed" rel="stylesheet">
+			<link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		
+		<link href="https://fonts.googleapis.com/css?family=Quicksand|Raleway|Roboto+Condensed|Cabin|Poppins" rel="stylesheet">
 	</head>
 	<body>
 		<div class="container-fluid">
@@ -87,26 +90,22 @@
 				<p class="now-serving"><?php echo $header_text; ?></p>
 			</div>
 			<div class="row headings">
-				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>">Tap<br/>#</div>
+				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>">Tap<br>#</div>
 				<div class="og-color col-2  <?php if ($show_srm_col == 0) echo 'no-show';?>">
-					Gravity
-					<hr />
-					Color 
+					<span class="top-ident">Gravity</span>
+					<span class="bottom-ident">Color</span> 
 				</div>
 				<div class="ibu col-2 <?php if ($show_ibu_col == 0) echo 'no-show';?>">
-					Balance
-					<hr />
-					Bitterness 
+					<span class="top-ident">Balance</span>
+					<span class="bottom-ident">Bitterness</span>
 				</div>
 				<div class="name col-<?php echo $name_width; ?>">
-					Beer Name &amp; Style
-					<hr />
-					Tasting Notes
+					<span class="top-ident">Beer Name &amp; Style</span>
+					<span class="bottom-ident">Tasting Notes</span>
 				</div>
 				<div class="abv col-2">
-					Calories
-					<hr />
-					Alcohol 
+					<span class="top-ident">Calories</span>
+					<span class="bottom-ident">Alcohol</span>
 				</div>
 			</div>
 			<?php 
@@ -126,15 +125,15 @@
 				$abv_img = (round($abv*100,2)/15);
 				?>
 			<div class="row beer-info">
-				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>"><span class="tapcircle"><?php echo $tap_num;?></span></div>
+				<div class="tap-num col-1 <?php if ($show_tap_num_col == 0) echo 'no-show';?>"><span class="tapcircle rounded-circle"><?php echo $tap_num;?></span></div>
 				<div class="og-color col-2 <?php if ($show_srm_col == 0) echo 'no-show';?>">
 					<h3><?php echo $og;?> OG</h3>
-					<div class="srm-container hidden-sm-down">
+					<div class="srm-container hidden-sm-down rounded-circle">
 						<div class="srm-indicator" style="background-color: <?php echo $hex_color;?> ">
 							<div class="srm-stroke"></div>
 						</div>
 					</div>
-					<h3><?php echo $srm_value; ?> SRM<br/> <?php echo $color_name; ?></h3>
+					<h3><?php echo $srm_value; ?> SRM<br> <?php echo $color_name; ?></h3>
 				</div>
 				<div class="ibu col-2 <?php if ($show_ibu_col == 0) echo 'no-show';?>">
 					<h3><?php echo $gubu;?> GU:BU</h3>
@@ -162,4 +161,16 @@
 			</div>
 			<?php } while ($row_taplist = $taplist->fetch(PDO::FETCH_ASSOC)); ?>
 		</div>
+		</body>
+		<!-- Bootstrap core JavaScript
+			================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script>
+			window.jQuery || document.write( '<script src="assets/js/vendor/jquery.min.js"><\/script>' )
+		</script>
+		<script src="assets/js/bootstrap.min.js"></script>
+		<script src="assets/js/docs.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
 </html>
