@@ -19,6 +19,7 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 	{
 	$beer_id = $_POST['beer_id'];
 	$action = $_POST['action'];
+
 //	echo 'POST action= ' . $_POST['action'].'<br/>';
 //	echo 'POST beer_id= ' . $_POST['beer_id'].'<br/>';
 	
@@ -64,7 +65,9 @@ if ($action == 'delete')
 
 if (isset($_POST['form_action']))
 	{
+
 //	echo 'POST form_action= ' . $_POST['form_action'].'<br/>';
+
 	$form_action = $_POST['form_action'];
 		
 //	echo 'POST form action= ' . $_POST['form_action'].'<br/>';
@@ -303,8 +306,10 @@ if (isset($_POST['form_action']))
 				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				
 				// prepare sql and bind parameters
+
 				    $stmt = $conn->prepare('INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) 
 				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note)');
+
 				    $stmt->bindParam(':beer_name', $beer_name);
 				    $stmt->bindParam(':style_number_fk', $style_number);
 				    $stmt->bindParam(':og', $og);
@@ -326,7 +331,9 @@ if (isset($_POST['form_action']))
 
 			catch(PDOException $e)
 				{
+
 				$feedback =  'Error:<br />' . $e->getMessage();
+
 				$feedback_type = 'danger';
 
 				 header("Refresh:5; url=beers.php", true, 303);
@@ -424,12 +431,14 @@ $ibu = $xml->RECIPE[0]->IBU;
 	else{$action_title = '<h1 class="action-title">Add A New Beer</h1>';}
 	
 
+
 //define page title
 $title = 'Edit/Add Beers';
 
 //include html header template
 require('assets/inc/html-header.php');
 ?>
+
 	<body>
 	<!-- Modal HTML import Beer -->
 	<div id="beer-process-import" class="modal fade">
@@ -464,7 +473,9 @@ require('assets/inc/html-header.php');
 				
 				    
 				<div class="form-group row has-<?php echo $beer_name_err_state?>">
+
 					<label for="<?php echo $beer_name_err_input ?>" class="col-md-2 col-form-label">Beer Name: </label>
+
 					<div class="col-md-8">
 						<input id="<?php echo $beer_name_err_input ?>" class="form-control form-control-<?php echo $beer_name_err_state?>" type="text" name="beer_name" placeholder="<?php
 						 echo $beer_name_err ?>" value="<?php
@@ -542,6 +553,7 @@ require('assets/inc/html-header.php');
 				<input type="hidden" name="beer_id" value="<?php echo $beer_id;?>">
 				<div class="form-group">
 					<div class="col-xs-offset-2 col-xs-10">
+					<?php	echo 'action---'.$action.'<br />'; ?>
 						<button type="submit" class="btn btn-primary form">
 					
 						<?php if($action == 'new' || $action == 'import')
@@ -583,6 +595,7 @@ require('assets/inc/html-header.php');
 			echo "<br>";
 			echo 'success? '. $success;
 			-->
+
 		<?php    //include html footer template
 		    require('assets/inc/html-footer.php');   
 		    ?>

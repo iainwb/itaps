@@ -6,6 +6,9 @@
    //include config
    require_once('assets/inc/config.php'); 
    
+   //include config
+   require_once('assets/inc/config.php'); 
+   
    // define variables and set to empty/placeholder values
    
    $abv = '';
