@@ -1,7 +1,7 @@
 <!doctype html>
 <?php
 include ('assets/inc/func.inc');
-require_once ('Connections/itaps_conn.php');
+require_once ('connections/itaps_conn.php');
 
 // define variables and set to empty/placeholder values
 
@@ -17,7 +17,7 @@ $query_tap_count = "SELECT COUNT(tap_status.tap_id)
 $tap_count = $conn->query($query_tap_count);
 $row_tap_count = $tap_count->fetch(PDO::FETCH_ASSOC);
 $tap_count = $row_tap_count['tap_count'];
-echo 'Tap count: ' . $tap_count . '<br/>';
+//echo 'Tap count: ' . $tap_count . '<br/>';
 
 // Pull settings data
 
@@ -37,17 +37,18 @@ $result = $config_info->fetchAll(PDO::FETCH_ASSOC);
 
 $header_text =  $result[9]['config_value'];
 $number_of_taps = $result[10]['config_value'];
-echo 'number_of_taps-config---'.$number_of_taps.'<br/>';
+$current_theme = $result[14]['config_value'];
+//echo 'number_of_taps-config---'.$number_of_taps.'<br/>';
+//echo 'current_theme---'.$current_theme.'<br/>';
 
 // If update submitted, validate data
 
 if ($_SERVER["REQUEST_METHOD"] == 'POST')
 	{
 	
-	
-	
 	$number_of_taps = $_POST['number_of_taps'];
 	$header_text = $_POST['header_text'];
+	$current_theme = $_POST['current_theme'];
 	
 	// if post with name is posted, set value to 1, else to 0
 	    $show_tap_num_col = isset($_POST['show_tap_num_col']) ? 1 : 0;
@@ -75,6 +76,11 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 				$stmt_abv_img = $conn->prepare($sql_abv_img);
 					$stmt_abv_img->execute();
 					
+		 if (isset($_POST['current_theme']) ){
+			$sql_current_theme = "UPDATE config SET config_value = '$current_theme' WHERE config_id = '15'";
+				$stmt_current_theme = $conn->prepare($sql_current_theme);
+					$stmt_current_theme->execute();		}	
+					
 	
 	if (empty($_POST['header_text']))
 		{
@@ -97,9 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 			}
 		}
 	
-	
-	
-	if (empty($_POST['number_of_taps']))
+			if (empty($_POST['number_of_taps']))
 		{
 		$number_of_taps_err_input = 'inputHorizontalDanger';
 		$number_of_taps_err_state = 'danger';
@@ -151,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = 'UPDATED successfully';
 						$feedback_type = 'success';
 		
-	//					 header("Refresh:3; url=settings.php", true, 303);
+						 header("Refresh:2; url=settings.php", true, 303);
 		
 						}
 		
@@ -160,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = $sql . "<br />" . $e->getMessage();
 						$feedback_type = 'danger';
 		
-			//			 header("Refresh:5; url=settings.php", true, 303);
+						 header("Refresh:5; url=settings.php", true, 303);
 		
 						}
 
@@ -171,8 +175,8 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 		//		Used for diagnostics
 
-		echo 'Taps Difference: ' . $taps_difference, '<br/>';
-		echo ($taps_difference < 0 ? 'negative-true<br/>' : 'positive or 0<br/>');
+	//	echo 'Taps Difference: ' . $taps_difference, '<br/>';
+	//	echo ($taps_difference < 0 ? 'negative-true<br/>' : 'positive or 0<br/>');
 
 		// If there is a change, add or delete rows in taps table
 
@@ -183,6 +187,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 			if ($taps_difference > 0)
 				{
+		//		echo 'Adding taps<br>';
 				$number_of_taps = $taps_required;
 				for ($x = 1; $x <= $taps_difference; $x++)
 					{
@@ -220,18 +225,19 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 
 			if ($taps_difference < 0)
 				{
+//				echo 'Deleting taps<br>';
 				$number_of_taps = $taps_required;
 				$taps_difference = abs($taps_difference);
 				for ($x = 1; $x <= $taps_difference; $x++)
 					{
 
 					// set the PDO error mode to exception
-
+echo 'delete tap#---'.$x;
 					try
 						{
 						$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-						$tap_number = $x + $taps_required;
-				//		echo 'delete ' . $tap_number.' ';
+						$number_of_taps = $x + $taps_required;
+	//					echo 'delete ' . $number_of_taps.' ';
 						$sql = "DELETE FROM tap_status WHERE tap_id=$number_of_taps";
 
 						// use exec() because no results are returned
@@ -240,7 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback = 'Record updated successfully';
 						$feedback_type = 'success';
 
-			//			   header("Refresh:2; url=settings.php", true, 303);
+		//				   header("Refresh:2; url=settings.php", true, 303);
 
 						}
 
@@ -250,7 +256,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 						$feedback_type = 'danger';
 						echo $sql . "<br />" . $e->getMessage();
 
-			//			  header("Refresh:4; url=settings.php", true, 303);
+						  header("Refresh:4; url=settings.php", true, 303);
 
 						}
 					}
@@ -278,7 +284,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 					$feedback = 'UPDATED successfully';
 					$feedback_type = 'success';
 
-		//			 header("Refresh:3; url=settings.php", true, 303);
+					 header("Refresh:3; url=settings.php", true, 303);
 
 					}
 
@@ -287,28 +293,20 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 					$feedback = $sql . "<br />" . $e->getMessage();
 					$feedback_type = 'danger';
 
-		//			 header("Refresh:5; url=settings.php", true, 303);
+					 header("Refresh:5; url=settings.php", true, 303);
 
 					}
 				}
 			}
 		}
 	}
+	
+	//define page title
+	$title = 'Settings';
+	
+	//include html header template
+	require('assets/inc/html-header.php');
 	?>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="description" content="">
-	<meta name="author" content="">
-	<title>Settings</title>
-	<link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-	<link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
-	<!-- Bootstrap core CSS -->
-	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="assets/css/custom.css" rel="stylesheet">
-</head>
 <body>
 	<?php include("assets/inc/navbar-header.inc"); ?>
 	<div class="container">
@@ -404,6 +402,26 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 		    echo $number_of_taps_err ?>" value="<?php echo $number_of_taps; ?>">
 		  </div>
 		</div>
+		
+		
+		<div class="form-group row">
+		<label for="choose-theme" class="col-2 col-form-label">Choose Theme</label>
+		<div class="custom-controls-stacked form-group col-10">
+		
+		  <label class="custom-control custom-radio">
+		    <input id="radioStacked1" name="current_theme" type="radio" class="custom-control-input" value="0" <?php if ($result[14]['config_value'] == 0) echo 'checked' ?>>
+		    <span class="custom-control-indicator"></span>
+		    <span class="custom-control-description">Classic Theme</span>
+		  </label>
+		  <label class="custom-control custom-radio">
+		    <input id="radioStacked2" name="current_theme" type="radio" class="custom-control-input" value="1" <?php if ($result[14]['config_value'] == 1) echo 'checked' ?>>
+		    <span class="custom-control-indicator"></span>
+		    <span class="custom-control-description">Modern Theme</span>
+		  </label>
+		</div>
+		</div>
+		
+		
 		<button type="submit" class="btn btn-primary">Submit</button>
 		</form>
 		
@@ -434,15 +452,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 		
 		-->
 </body>
-	<!-- Bootstrap core JavaScript
-		================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script>
-		window.jQuery || document.write( '<script src="assets/js/vendor/jquery.min.js"><\/script>' )
-	</script>
-	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/js/docs.min.js"></script>
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+<?php    //include html footer template
+    require('assets/inc/html-footer.php');   
+    ?>
 </html>

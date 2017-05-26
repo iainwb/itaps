@@ -1,7 +1,6 @@
-<!DOCTYPE html>
 <?php 
 	include('assets/inc/func.inc');
-	require_once('Connections/itaps_conn.php');
+	require_once('connections/itaps_conn.php');
 		
 	// declare variables and set to empty/placeholder values
 	
@@ -22,6 +21,7 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 	$action = $_POST['action'];
 //	echo 'POST action= ' . $_POST['action'].'<br/>';
 //	echo 'POST beer_id= ' . $_POST['beer_id'].'<br/>';
+	
 	}
 //else
 //	{
@@ -36,7 +36,6 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 
 if ($action == 'delete')
 	{
-		
 		$action = $_POST['action'];
 		$beer_id = $_POST['beer_id'];
 			
@@ -65,6 +64,7 @@ if ($action == 'delete')
 
 if (isset($_POST['form_action']))
 	{
+//	echo 'POST form_action= ' . $_POST['form_action'].'<br/>';
 	$form_action = $_POST['form_action'];
 		
 //	echo 'POST form action= ' . $_POST['form_action'].'<br/>';
@@ -170,6 +170,14 @@ if (isset($_POST['form_action']))
 				$ibu = '';
 				$ibu_err = "IBU be entered in ##.## format";
 				}
+				
+				if ($ibu > 200 || $ibu < 1)
+					{
+					$srm_decimal_err_input = 'inputHorizontalWarning';
+					$srm_decimal_err_state = 'warning';
+					$srm_decimal = '';
+					$srm_decimal_err = "IBU must between 1 and 200.";
+					}
 			}
 
 		// Check if SRMerr_state been entered
@@ -191,7 +199,15 @@ if (isset($_POST['form_action']))
 				$srm_decimal_err_input = 'inputHorizontalWarning';
 				$srm_decimal_err_state = 'warning';
 				$srm_decimal = '';
-				$srm_decimal_err = "SRM be entered in ##.## format";
+				$srm_decimal_err = "SRM must be entered in ##.## format";
+				}
+				
+			if ($srm_decimal > 40 || $srm_decimal < 1)
+				{
+				$srm_decimal_err_input = 'inputHorizontalWarning';
+				$srm_decimal_err_state = 'warning';
+				$srm_decimal = '';
+				$srm_decimal_err = "SRM must between 1 and 40.";
 				}
 			}
 
@@ -258,52 +274,62 @@ if (isset($_POST['form_action']))
 
 				// echo a message to say the UPDATE succeeded
 
-				$feedback = $stmt->rowCount() . " records UPDATED successfully";
+				$feedback = 'Update successful';
 				$feedback_type = 'success';
 
-				// header("Refresh:3; url=beers.php", true, 303);
+				 header("Refresh:3; url=beers.php", true, 303);
 
 				}
 
 			catch(PDOException $e)
 				{
-				$feedback = $sql . "<br />" . $e->getMessage();
+				$feedback = $sql . '<br>' . $e->getMessage();
 				$feedback_type = 'danger';
 
-				// header("Refresh:5; url=beers.php", true, 303);
+				 header("Refresh:5; url=beers.php", true, 303);
 
 				}
 		}
 
 		// If new, insert a record
 
-		if ($action == 'new')
+		if ($action == 'new' || $action == 'import')
 			{
-			
 			try
 				{
 
 				// set the PDO error mode to exception
 
 				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				$sql = "INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) VALUES ('$beer_name', '$style_number', '$og', '$fg', '$ibu', '$srm_decimal', '$srm_value', '$note')";
-
+				
+				// prepare sql and bind parameters
+				    $stmt = $conn->prepare('INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) 
+				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note)');
+				    $stmt->bindParam(':beer_name', $beer_name);
+				    $stmt->bindParam(':style_number_fk', $style_number);
+				    $stmt->bindParam(':og', $og);
+				    $stmt->bindParam(':fg', $fg);
+				    $stmt->bindParam(':ibu', $ibu);
+				    $stmt->bindParam(':srm_decimal', $srm_decimal);
+				    $stmt->bindParam(':srm_value_fk', $srm_value);
+				    $stmt->bindParam(':note', $note);
+				
 				// use exec() because no results are returned
 
-				$conn->exec($sql);
+				$stmt->execute();
 				$feedback = 'Record created successfully';
 				$feedback_type = 'success';
 
-				// header("Refresh:3; url=beers.php", true, 303);
+				 header("Refresh:2; url=beers.php", true, 303);
 
 				}
 
 			catch(PDOException $e)
 				{
-				$feedback = $sql . "<br />" . $e->getMessage();
+				$feedback =  'Error:<br />' . $e->getMessage();
 				$feedback_type = 'danger';
 
-				// header("Refresh:5; url=beers.php", true, 303);
+				 header("Refresh:5; url=beers.php", true, 303);
 
 				}
 			}
@@ -325,7 +351,7 @@ if (isset($_POST['form_action']))
 	   $list_style_id = $row_styles['style_number'];
 	   $list_style_name = $row_styles['style_name'];
 	   
-	   if (isset($_POST['action']) && $_POST['action'] != 'new'){
+	   if (isset($_POST['action']) && $_POST['action'] == 'edit'){
 	   $beer_id = $_POST['beer_id'];
 	   $action_title = '<h1 class="action-title">Edit Your Beer</h1>';
 	  
@@ -373,25 +399,59 @@ if (isset($_POST['form_action']))
 	   		}		   
 		
 	
-	}else{$actionTitle = '<h1 class="action-title">Add A New Beer</h1>';}
-	
-	?>
+	}elseif (isset($_POST['action']) && $_POST['action'] == 'import') {
+	$action_title = '<h1 class="action-title">Import a New Beer</h1>';
+$import_file_name = $_FILES['import']['name'];
+$import = $_FILES['import']['tmp_name'];
+$action = 'new';
 
-<html lang="en">
-	<head>
-	   <meta charset="utf-8">
-	   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	   <meta name="description" content="">
-	   <meta name="author" content="">
-	   <title>Keg List</title>
-	   <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-	   <link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
-	   <!-- Bootstrap core CSS -->
-	   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-	   <!-- Custom styles for this template -->
-	   <link href="assets/css/custom.css" rel="stylesheet">
-	</head>
+if (!preg_match('/^\w{1,256}[.]xml$/', $import_file_name)){
+$feedback = 'Only .xml files allowed.';
+$feedback_type = 'danger';
+}else{
+
+$xml = simplexml_load_file($import) or die("Error: Cannot create object");
+$beer_name = $xml->RECIPE[0]->NAME;
+$og = $xml->RECIPE[0]->OG;
+$fg = $xml->RECIPE[0]->FG;
+$srm_decimal = $xml->RECIPE[0]->EST_COLOR;
+$style_number =  $xml->RECIPE[0]->STYLE->CATEGORY_NUMBER . $xml->RECIPE[0]->STYLE->STYLE_LETTER;
+if (!preg_match("/^[0-9]{2}[A-Z]$/", $style_number))
+	{$style_number = '0'.$style_number; }
+$ibu = $xml->RECIPE[0]->IBU;		
+	}
+	}
+	else{$action_title = '<h1 class="action-title">Add A New Beer</h1>';}
+	
+
+//define page title
+$title = 'Edit/Add Beers';
+
+//include html header template
+require('assets/inc/html-header.php');
+?>
 	<body>
+	<!-- Modal HTML import Beer -->
+	<div id="beer-process-import" class="modal fade">
+	   <div class="modal-dialog">
+	      <div class="modal-content">
+	         <div class="modal-header">
+	            <h4 class="modal-title">Import BeerXML</h4>
+	            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	         </div>
+	         <div class="modal-body">
+	            <form id="beer-import" class="beer-import" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" enctype="multipart/form-data">
+	            <input type="file" name="import" value="">
+	            <input type="hidden" class="action" name="action" value="import">
+	            </form>
+	         </div>
+	         <div class="modal-footer">
+	            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	            <button type="button" class="btn btn-primary" onclick="submitBeerImport()">Upload</button>
+	         </div>
+	      </div>
+	   </div>
+	</div>
 		<?php include("assets/inc/navbar-header.inc"); ?>
 		<div class="container">
 			<div class="page-title"><?php echo $action_title; ?>
@@ -404,7 +464,7 @@ if (isset($_POST['form_action']))
 				
 				    
 				<div class="form-group row has-<?php echo $beer_name_err_state?>">
-					<label for="<?php echo $beer_name_err_input ?>" class="col-md-3 col-form-label" for="beer_name">Beer Name: </label>
+					<label for="<?php echo $beer_name_err_input ?>" class="col-md-2 col-form-label">Beer Name: </label>
 					<div class="col-md-8">
 						<input id="<?php echo $beer_name_err_input ?>" class="form-control form-control-<?php echo $beer_name_err_state?>" type="text" name="beer_name" placeholder="<?php
 						 echo $beer_name_err ?>" value="<?php
@@ -414,7 +474,7 @@ if (isset($_POST['form_action']))
 				</div>
 				
 				<div class="form-group row">
-					<label class="col-md-3 col-form-label" for="style">Style: </label>
+					<label class="col-md-2 col-form-label" for="style">Style: </label>
 					<div class="col-md-8">
 						<select class="form-control custom-select" name="list_style_number" id="list_style_number">
 							<?php do { 
@@ -427,12 +487,8 @@ if (isset($_POST['form_action']))
 					</div>
 				</div>
 				
-			
-				    
-				    
-				    
 				<div class="form-group row has-<?php echo $og_err_state?>">
-					<label for="<?php echo $og_err_input ?>" class="col-md-3 col-form-label" for="og">OG: </label>
+					<label for="<?php echo $og_err_input ?>" class="col-md-2 col-form-label" for="og">OG: </label>
 					<div class="col-md-8">
 						<input id="<?php echo $og_err_input ?>" class="form-control form-control-<?php echo $og_err_state?>" type="text" name="og" placeholder="<?php
 						 echo $og_err ?>" value="<?php
@@ -443,7 +499,7 @@ if (isset($_POST['form_action']))
 				
 								    
 				<div class="form-group row has-<?php echo $fg_err_state?>">
-					<label for="<?php echo $fg_err_input ?>" class="col-md-3 col-form-label" for="fg">FG: </label>
+					<label for="<?php echo $fg_err_input ?>" class="col-md-2 col-form-label" for="fg">FG: </label>
 					<div class="col-md-8">
 						<input id="<?php echo $fg_err_input ?>" class="form-control form-control-<?php echo $fg_err_state?>" type="text" name="fg" placeholder="<?php
 						 echo $fg_err ?>" value="<?php
@@ -454,7 +510,7 @@ if (isset($_POST['form_action']))
 				
 								    
 				<div class="form-group row has-<?php echo $ibu_err_state?>">
-					<label for="<?php echo $ibu_err_input ?>" class="col-md-3 col-form-label" for="ibu">IBU: </label>
+					<label for="<?php echo $ibu_err_input ?>" class="col-md-2 col-form-label" for="ibu">IBU: </label>
 					<div class="col-md-8">
 						<input id="<?php echo $ibu_err_input ?>" class="form-control form-control-<?php echo $ibu_err_state?>" type="text" name="ibu" placeholder="<?php
 						 echo $ibu_err ?>" value="<?php
@@ -465,7 +521,7 @@ if (isset($_POST['form_action']))
 				
 								    
 				<div class="form-group row has-<?php echo $srm_decimal_err_state?>">
-					<label for="<?php echo $srm_decimal_err_input ?>" class="col-md-3 col-form-label" for="srm_decimal">SRM: </label>
+					<label for="<?php echo $srm_decimal_err_input ?>" class="col-md-2 col-form-label" for="srm_decimal">SRM: </label>
 					<div class="col-md-8">
 						<input id="<?php echo $srm_decimal_err_input ?>" class="form-control form-control-<?php echo $srm_decimal_err_state?>" type="text" name="srm_decimal" placeholder="<?php
 						 echo $srm_decimal_err ?>" value="<?php
@@ -473,11 +529,10 @@ if (isset($_POST['form_action']))
 						  echo $srm_decimal;?>">
 					</div>
 				</div>
-				
-				
+						
 				
 				<div class="form-group row">
-					<label class="col-md-3 col-form-label" for="note">Note:</label>
+					<label class="col-md-2 col-form-label" for="note">Note:</label>
 					<div class="col-md-8">
 						<textarea class="form-control " rows="5" id="note" name="note" placeholder="Tell us about your beer" ><?php echo $note; ?></textarea>
 					</div>
@@ -488,10 +543,12 @@ if (isset($_POST['form_action']))
 				<div class="form-group">
 					<div class="col-xs-offset-2 col-xs-10">
 						<button type="submit" class="btn btn-primary form">
-						<?php if($action == 'new')
-							echo 'Add Keg';
+					
+						<?php if($action == 'new' || $action == 'import')
+							echo 'Add Beer';
 							if ($action == 'edit') echo 'Update'; ?></button>
 						<a class="btn btn-primary form" href="beers.php">Cancel</a>
+						<button type="button" class="beer-process btn btn-outline-primary"  data-toggle="modal" data-target="#beer-process-import" data-beer_id="<?php echo $beer_id ?>" data-action="import">Import Beer</button>
 					</div>
 				</div>
 			</form>
@@ -526,14 +583,8 @@ if (isset($_POST['form_action']))
 			echo "<br>";
 			echo 'success? '. $success;
 			-->
-		<!-- Bootstrap core JavaScript
-			================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-		<script src="assets/js/bootstrap.min.js"></script>
-		<script src="assets/js/docs.min.js"></script>
-		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-		<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+		<?php    //include html footer template
+		    require('assets/inc/html-footer.php');   
+		    ?>
 	</body>
 </html>

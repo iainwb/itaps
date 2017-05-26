@@ -2,7 +2,7 @@
 <?php 
    include ('assets/inc/func.inc');
    
-   require_once ('Connections/itaps_conn.php');
+   require_once ('connections/itaps_conn.php');
    	
    // declare variables and set to empty/placeholder values
    
@@ -51,18 +51,8 @@
    kegs.keg_id ASC";
    $keglist = $conn->query($query_keglist);
    $row_keglist = $keglist->fetch(PDO::FETCH_ASSOC);
-   
-   // Set status type color
-   
-   function statusColor($status_code, $color)
-   	{
-   	if ($status_code == "Tapped") echo ('card-success');
-   	elseif ($status_code == "On Deck") echo ('card-info');
-		elseif ($status_code == "Empty—Clean") echo ('card-warning');
-		elseif ($status_code == "Conditioning") echo ('card-warning');
-   	  else echo ('card-danger');
-   	return ($color);
-   	}
+				
+
    
    if (isset($_POST['action'])){
    	
@@ -184,22 +174,12 @@
    }
    	// User feedback
    
-   			
+  //define page title
+  $title = 'Keg List';
+  
+  //include htnl header template
+  require('assets/inc/html-header.php'); 			
    ?>
-<html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <meta name="description" content="">
-      <meta name="author" content="">
-      <title>Keg List</title>
-      <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-      <link href="https://fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i" rel="stylesheet">
-      <!-- Bootstrap core CSS -->
-      <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-      <!-- Custom styles for this template -->
-      <link href="assets/css/custom.css" rel="stylesheet">
-   </head>
    <body>
       <!-- Modal HTML Kick Keg -->
       <div id="keg-process-kick" class="modal fade">
@@ -276,7 +256,8 @@
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                </div>
                <div class="modal-body">
-                  <p>Do you want to edit this keg?</p>
+                  <p>Do you want to edit this keg?<br>
+                  Currently tapped kegs will be kicked.</p>
                   <p class="text-warning"><small>This change cannot be undone.</small></p>
                </div>
                <div class="modal-footer">
@@ -363,45 +344,11 @@
          <input type="hidden" class="tap-id" name="tap_id" value="">
       </form>
       <!-- Hidden Form to Process a New Keg Request -->
-      <form class="hidden" id="kegs-new" action="kegs-edit.php" method="post">
+      <form class="hidden" id="keg-new" action="kegs-edit.php" method="post">
          <input type="hidden" name="action" value="new">
          <input type="hidden" id="hiddenValue" name="keg_id" value="">
       </form>
-      <!-- Bootstrap core JavaScript
-         ================================================== -->
-      <!-- Placed at the end of the document so the pages load faster -->
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-      <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-      <script src="assets/js/bootstrap.min.js"></script>
-      <script src="assets/js/docs.min.js"></script>
-      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-      <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
-      <script type="text/javascript"  >
-         function submitKegEdit() {
-         document.getElementById("keg-edit").submit();
-         }
-         
-         function submitNewKegRequest() {
-         document.getElementById("kegs-new").submit();
-         }
-         
-         function submitKegProcess() {
-         var tap_id = document.getElementById('list-tap-id').value;
-         $(".keg-process .tap-id").val(tap_id);
-         document.getElementById("keg-process").submit();
-         }
-         		 						 
-         // Get keg_id from Keg buttons & send to Hidden Inputs 						 
-         $(document).ready(function() {
-         $(".keg-process").click(function() {
-         var keg_id = $(this).data('keg_id');
-         var action = $(this).data('action');
-         $(".keg-process .keg-id").val(keg_id);
-         $(".keg-process .action").val(action);
-         $(".keg-edit .keg-id").val(keg_id);
-         $(".keg-edit .action").val(action);
-         })
-         });	
-      </script>
-   </body>
+      <?php    //include html footer template
+          require('assets/inc/html-footer.php');   
+          ?>   </body>
 </html>

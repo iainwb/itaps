@@ -1,7 +1,7 @@
 <!doctype html>
 <?php
 	include('assets/inc/func.inc');
-	require_once('Connections/itaps_conn.php');
+	require_once('connections/itaps_conn.php');
 	
 	$query_config_info = "SELECT
 	 config.config_id,
