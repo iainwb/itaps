@@ -1,6 +1,6 @@
 /* @override 
-	http://itaps.loc/assets/css/taplist-modern.css
-	*/
+	http://itaps.loc/assets/css/taplist-modern.css */
+
 /* CSS Document */
 
 html, body {
@@ -10,16 +10,13 @@ html, body {
 body {
 	margin: 0;
 	padding: 0;
+	background-color: #333;
 	background-size: cover;
 	overflow: hidden;
 	color: #333;
 	font-size: 1em;
-//	font-family: 'Quicksand', sans-serif;
-//	font-family: 'Roboto Condensed', sans-serif; 
-	font-family: 'Raleway', sans-serif;
-//	font-family: 'Cabin', sans-serif;
-//	font-family: 'Poppins', sans-serif;
-	background: url(/assets/img/gray-linen.png);
+	font-family: 'Montserrat', sans-serif; 
+
 }
 
 h1, h2, h3, h4, ul, li, div, form, p {
@@ -32,10 +29,10 @@ hr {
 	height: 1px;
 	-webkit-margin-before: 2px;
 	-webkit-margin-after: 2px;
-	background-image: -webkit-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255)); 
-	background-image:    -moz-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255)); 
-	background-image:     -ms-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255)); 
-	background-image:      -o-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
+	background-image: -webkit-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
+	background-image: -moz-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
+	background-image: -ms-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
+	background-image: -o-linear-gradient(left, rgba(255,255,255,255), rgba(255,255,255,0.75), rgba(255,255,255,255));
 	padding-right: 5px;
 }
 
@@ -50,28 +47,22 @@ hr {
 }
 
 .top {
-	background-color: rgba(51, 51, 51, 0.75);
 	color: #fff;
 	justify-content: center;
-	align-items: center;
+	height: 7em;
+}
+
+.headings {
+	color: #fff;
 }
 
 .top-ident {
 	border-bottom: 1px solid #fff;
 }
 
-
 .now-serving {
-	font-size: 2.5rem;
+	font-size: 3rem;
 	text-align: center;
-}
-
-div.row.headings {
-	background-color: rgba(42, 42, 42, 0.25);
-	color: #fff;
-	text-align: center;
-	flex-wrap: nowrap;
-	align-items: center;
 }
 
 div.row.beer-info {
@@ -80,9 +71,9 @@ div.row.beer-info {
 
 div.tap-num {
 	display: flex;
-	border-right: 1px dotted #fff;
+//	border-right: 1px dotted #fff;
 	text-align: center;
-	align-self: stretch;
+	align-self: center;
 	justify-content: center;
 }
 
@@ -90,6 +81,7 @@ div.og-color {
 	display: flex;
 	flex-direction: column;
 	border-right: 1px dotted #fff;
+	border-left: 1px dotted #fff;
 	text-align: center;
 	align-self: stretch;
 	justify-content: center;
@@ -99,16 +91,17 @@ div.og-color {
 div.ibu {
 	display: flex;
 	flex-direction: column;
-	border-right: 1px dotted #fff;
+//	border-right: 1px dotted #fff;
 	text-align: center;
-	align-self: stretch;
-	justify-content: center;
+	align-self: center;
+	justify-content: flex-end;
 }
 
 div.name {
 	display: flex;
 	flex-direction: column;
 	border-right: 1px dotted #fff;
+	border-left: 1px dotted #fff;
 	text-align: center;
 	align-self: stretch;
 	justify-content: center;
@@ -128,127 +121,110 @@ h3 {
 	text-align: center;
 	line-height: 1rem;
 	font-size: 1rem;
+	font-weight: 400;
 }
 
 span.tapcircle {
 	min-width: 2rem;
 	line-height: 2rem;
 	font-size: 1.25rem;
-	font-weight: bold;
-	text-align: center;
+	font-weight: 500;
+	text-a
+	lign: center;
 	background-color: gray;
-	color: #fff;
+	color: #e6e3e3;
 	align-self: center;
-	text-align: center;
-	font-family: 'Cabin', sans-serif;
+//	font-family: 'Cabin', sans-serif;
 }
 
 h1.beer-name {
-	background-color: rgba(255, 255, 255, 0.80);
+	background-color: #333;
+	color: #fff;
 	padding: .25em .25em;
 	margin-top: .25em;
-	font-size: 1.5rem;
-	font-weight: bold;
-	
+	font-size: 1.75rem;
+	font-weight: 600;
 }
 
 h2.beer-style {
 	text-align: left;
 	padding: .25em .25em;
 	font-size: 1.25rem;
-	font-weight: bold;
+	font-weight: 400;
+//	background-color: rgb(255, 255, 255);
 }
 
 p.tasting-notes {
 	text-align: left;
 	font-size: 1rem;
+	font-weight: 300;
 	padding: .25em .25em;
 }
 
 div.beer-info.row:nth-child(even) {
-	background: rgba(255, 255, 255, 0.5) !important;
+	background: rgb(228, 228, 228) !important;
 }
 
 div.beer-info.row:nth-child(odd) {
-	background: rgba(228, 228, 228, 0.5) !important;
+	background: rgb(203, 202, 202) !important;
 }
 
 /* @group img containers */
-.srm-container{
-	position: relative;
-	height: 50px;
-	width: 55px;
+
+.srm-container {
+	display: flex;
+	align-items: center;
+	justify-content:center ;
+	height: 5rem;
+	width: 5rem;
 	margin: 0 auto;
+	color: #fff;
+	background-color: #7cc878;
 }
 
-.srm-indicator{
-	position: absolute; 
-	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	z-index: 1;
-	border-radius: 4rem;
-	width: 3.25rem;
-	border: 1px solid #333;
-		
-	
-}
-
-.srm-stroke{
-	position: absolute; 
-	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	z-index: 2;
-}
-
-.ibu-container{
+.ibu-container {
 	position: relative;
-	height:4rem;
+	height: 5rem;
 	width: 2rem;
 	margin: 0 auto;
-	border: 1px solid #333;
+//	border: 1px solid #333;
 }
 
-.ibu-indicator{
-	position: absolute;
-	bottom: 0;
-	left: 0;
+.ibu-indicator {
+//	position: absolute;
+//	bottom: 0;
+//	left: 0;
 	height: 100%;
 	width: 100%;
 	background-color: #fff;
-	
 }
 
-.ibu-indicator .ibu-full{
+.ibu-indicator .ibu-full {
 	position: absolute;
-	background-color: #02fa02;
+	background-color: #3ebc3e;
 	bottom: 0;
 	left: 0;
 	width: 100%;
-		
 }
-	
-.ibu-max{
+
+.ibu-max {
 	position: absolute;
 	top: -5px;
 	left: 35px;
 }
 
-.abv-container{
+.abv-container {
 	position: relative;
-	height:4rem;
-	width:2rem;
+	height: 4rem;
+	width: 2rem;
 	margin: 0 auto;
-	border: 1px solid #333;
+	//	border: 1px solid #333;
 	background-color: #fff;
-}	
+}
 
-.abv-indicator .abv-full{
+.abv-indicator .abv-full {
 	position: absolute;
-	background-color: #fcd649;
+	background-color: #efc115;
 	bottom: 0;
 	left: 0;
 	width: 100%;
