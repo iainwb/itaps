@@ -14,7 +14,7 @@ Some caveats:
 
 Yes, this lacks some of the features of Raspberry Pints. If you just want something simple, iTaps is for you, otherwise stick with Raspberry Pints, as you can still get help with it at Homebrew Talk, http://www.homebrewtalk.com/showthread.php?t=487694.
 
-This is an alpha release; it's working pretty well overall, but I am still cleaning up code and moving things about.
+This is still a beta release; it's working pretty well overall, but I am still cleaning up code and moving things about.
 
 Yes, no flow meters. I'm really a front end designer, with coding nerds under my command for getting the back side of things working quickly. Since this is a personal project, it's just me. There are some coding languages and scripts that I am having to learn to make this all work as I'd like it. I don't have flowmeters in my keezer; they are expensive. Once I can afford flow meters, I'll incorporate them. 
 
