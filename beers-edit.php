@@ -11,6 +11,7 @@
 	$fg = $fg_err_input = $fg_err_state = '';
 	$ibu = $ibu_err_input = $ibu_err_state = '';
 	$srm_value = $srm_decimal = $srm_decimal_err_input = $srm_decimal_err_state = '';
+	$nonalchoholic = '';
 	$beer_id = $form_action = $action = $action_title = $style_number = $note = $update = $method = $feedback = $feedback_type = $reload = '';
 	
 // Have an action and beer id been posted: yes-carry on, no return to beer list with an error
@@ -19,7 +20,6 @@ if (isset($_POST['action']) && (isset($_POST['beer_id'])))
 	{
 	$beer_id = $_POST['beer_id'];
 	$action = $_POST['action'];
-
 //	echo 'POST action= ' . $_POST['action'].'<br/>';
 //	echo 'POST beer_id= ' . $_POST['beer_id'].'<br/>';
 	
@@ -65,9 +65,7 @@ if ($action == 'delete')
 
 if (isset($_POST['form_action']))
 	{
-
 //	echo 'POST form_action= ' . $_POST['form_action'].'<br/>';
-
 	$form_action = $_POST['form_action'];
 		
 //	echo 'POST form action= ' . $_POST['form_action'].'<br/>';
@@ -166,7 +164,7 @@ if (isset($_POST['form_action']))
 
 			// Check if IBU is well-formed
 
-			if (!preg_match("/^[1-9]{1}[0-9]?[.]{1}[0-9]{2}$/", $ibu))
+			if (!preg_match("/^[0-9]{1}[0-9]?[.]{1}[0-9]{2}$/", $ibu))
 				{
 				$ibu_err_input = 'inputHorizontalWarning';
 				$ibu_err_state = 'warning';
@@ -174,12 +172,12 @@ if (isset($_POST['form_action']))
 				$ibu_err = "IBU be entered in ##.## format";
 				}
 				
-				if ($ibu > 200 || $ibu < 1)
+				if ($ibu > 200 || $ibu < 0)
 					{
-					$srm_decimal_err_input = 'inputHorizontalWarning';
-					$srm_decimal_err_state = 'warning';
-					$srm_decimal = '';
-					$srm_decimal_err = "IBU must between 1 and 200.";
+					$ibu_err_input = 'inputHorizontalWarning';
+					$ibu_err_state = 'warning';
+					$ibu = '';
+					$ibu_err = "IBU must between 1 and 200.";
 					}
 			}
 
@@ -306,10 +304,8 @@ if (isset($_POST['form_action']))
 				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				
 				// prepare sql and bind parameters
-
-				    $stmt = $conn->prepare('INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note) 
-				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note)');
-
+				    $stmt = $conn->prepare('INSERT INTO beers (beer_name, style_number_fk, og, fg, ibu, srm_decimal, srm_value_fk, note, nonalchoholic) 
+				    VALUES (:beer_name, :style_number_fk, :og, :fg, :ibu, :srm_decimal,:srm_value_fk, :note, :nonalchoholic)');
 				    $stmt->bindParam(':beer_name', $beer_name);
 				    $stmt->bindParam(':style_number_fk', $style_number);
 				    $stmt->bindParam(':og', $og);
@@ -318,6 +314,7 @@ if (isset($_POST['form_action']))
 				    $stmt->bindParam(':srm_decimal', $srm_decimal);
 				    $stmt->bindParam(':srm_value_fk', $srm_value);
 				    $stmt->bindParam(':note', $note);
+				    $stmt->bindParam(':nonalchoholic', $nonalchoholic);
 				
 				// use exec() because no results are returned
 
@@ -331,9 +328,7 @@ if (isset($_POST['form_action']))
 
 			catch(PDOException $e)
 				{
-
 				$feedback =  'Error:<br />' . $e->getMessage();
-
 				$feedback_type = 'danger';
 
 				 header("Refresh:5; url=beers.php", true, 303);
@@ -374,6 +369,7 @@ if (isset($_POST['form_action']))
 	   beers.ibu,
 	   beers.srm_decimal,
 	   beers.srm_value_fk,
+	   beers.nonalchoholic,
 	   srm.color_name,
 	   srm.hex_color,
 	   beers.note
@@ -400,6 +396,7 @@ if (isset($_POST['form_action']))
 	   		$ibu = $var_set['ibu'];
 			$srm_decimal = $var_set['srm_decimal'];
 	   		$srm_value_fk = $var_set['srm_value_fk'];
+	   		$nonalchoholic = $var_set['nonalchoholic'];
 	   		$color_name = $var_set['color_name'];
 	   		$hex_color = $var_set['hex_color'];
 	   		$note = $var_set['note'];
@@ -431,14 +428,12 @@ $ibu = $xml->RECIPE[0]->IBU;
 	else{$action_title = '<h1 class="action-title">Add A New Beer</h1>';}
 	
 
-
 //define page title
 $title = 'Edit/Add Beers';
 
 //include html header template
 require('assets/inc/html-header.php');
 ?>
-
 	<body>
 	<!-- Modal HTML import Beer -->
 	<div id="beer-process-import" class="modal fade">
@@ -473,9 +468,7 @@ require('assets/inc/html-header.php');
 				
 				    
 				<div class="form-group row has-<?php echo $beer_name_err_state?>">
-
 					<label for="<?php echo $beer_name_err_input ?>" class="col-md-2 col-form-label">Beer Name: </label>
-
 					<div class="col-md-8">
 						<input id="<?php echo $beer_name_err_input ?>" class="form-control form-control-<?php echo $beer_name_err_state?>" type="text" name="beer_name" placeholder="<?php
 						 echo $beer_name_err ?>" value="<?php
@@ -540,7 +533,7 @@ require('assets/inc/html-header.php');
 						  echo $srm_decimal;?>">
 					</div>
 				</div>
-						
+					
 				
 				<div class="form-group row">
 					<label class="col-md-2 col-form-label" for="note">Note:</label>
@@ -548,12 +541,23 @@ require('assets/inc/html-header.php');
 						<textarea class="form-control " rows="5" id="note" name="note" placeholder="Tell us about your beer" ><?php echo $note; ?></textarea>
 					</div>
 				</div>
+				
+				<div class="form-group row">
+				
+					<div class="form-check col-3">
+					  <label class="form-check-label">
+					    <input class="form-check-input" name="nonalchoholic" type="checkbox" value="1" <?php if ($nonalchoholic == 1) echo 'checked'; ?>>
+					    Non-alchoholic
+					  </label>
+					</div>
+					
+					
+				</div>
 				<input type="hidden" name="form_action" value="update">
 				<input type="hidden" name="action" value="<?php echo $action;?>">
 				<input type="hidden" name="beer_id" value="<?php echo $beer_id;?>">
 				<div class="form-group">
 					<div class="col-xs-offset-2 col-xs-10">
-					<?php	echo 'action---'.$action.'<br />'; ?>
 						<button type="submit" class="btn btn-primary form">
 					
 						<?php if($action == 'new' || $action == 'import')
@@ -563,6 +567,7 @@ require('assets/inc/html-header.php');
 						<button type="button" class="beer-process btn btn-outline-primary"  data-toggle="modal" data-target="#beer-process-import" data-beer_id="<?php echo $beer_id ?>" data-action="import">Import Beer</button>
 					</div>
 				</div>
+					
 			</form>
 		</div>
 		<!-- /container -->
@@ -595,7 +600,6 @@ require('assets/inc/html-header.php');
 			echo "<br>";
 			echo 'success? '. $success;
 			-->
-
 		<?php    //include html footer template
 		    require('assets/inc/html-footer.php');   
 		    ?>

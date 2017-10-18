@@ -161,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 		
 					catch(PDOException $e)
 						{
-						$feedback = $sql . "<br />" . $e->getMessage();
+						$feedback = $sql . '<br />' . $e->getMessage();
 						$feedback_type = 'danger';
 		
 						 header("Refresh:5; url=settings.php", true, 303);

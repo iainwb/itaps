@@ -27,34 +27,31 @@
 	$name_width = '';
 	
 	$query_taplist = "SELECT
-	tap_status.tap_id,
-	beers.beer_name,
-	beers.og,
-	beers.fg,
-	beers.ibu,
-	beers.note,
-	srm.srm_value,
-	srm.hex_color,
-	srm.color_name,
-	bjcp_styles.style_number,
-	bjcp_styles.style_name,
-	keg_status.status_code
+	itaps.tap_status.tap_id,
+	itaps.kegs.keg_id,
+	itaps.beers.beer_name,
+	itaps.beers.og,
+	itaps.beers.fg,
+	itaps.beers.ibu,
+	itaps.srm.hex_color,
+	itaps.srm.color_name,
+	itaps.beers.srm_decimal,
+	itaps.beers.note,
+	itaps.beers.nonalchoholic,
+	itaps.srm.srm_value,
+	itaps.bjcp_styles.style_name
 	FROM
-	srm
-	JOIN beers
-	ON srm.srm_value = beers.srm_value_fk 
-	JOIN bjcp_styles
-	ON bjcp_styles.style_number = beers.style_number_fk 
-	JOIN kegs
-	ON beers.beer_id = kegs.beer_id_fk 
-	JOIN keg_status
-	ON keg_status.status_id = kegs.status_id_fk 
-	JOIN tap_status
-	ON kegs.keg_id = tap_status.keg_id_fk
-	WHERE
-	keg_status.status_code ='Tapped'
+	itaps.tap_status
+	LEFT JOIN itaps.kegs
+	ON itaps.tap_status.keg_id_fk = itaps.kegs.keg_id 
+	LEFT JOIN itaps.beers
+	ON itaps.kegs.beer_id_fk = itaps.beers.beer_id 
+	LEFT JOIN itaps.srm
+	ON itaps.beers.srm_value_fk = itaps.srm.srm_value 
+	LEFT JOIN itaps.bjcp_styles
+	ON itaps.beers.style_number_fk = itaps.bjcp_styles.style_number
 	ORDER BY
-	tap_status.tap_id ASC";
+	itaps.tap_status.tap_id ASC";
 	$taplist = $conn->query($query_taplist);
 	
 	$row_taplist = $taplist->fetch(PDO::FETCH_ASSOC);
@@ -119,6 +116,7 @@
 			$og = $row_taplist['og'];
 			$fg = $row_taplist['fg'];
 			$ibu = $row_taplist['ibu'];
+			$nonalchoholic = $row_taplist['nonalchoholic'];
 //			$gubu = round($ibu/(($og-1)*1000),2);
 			$abv = $kCal = $ibuImg = $abvImg = 0;
 			$abv = abv($og, $fg, $abv, $digits = 2);
@@ -150,7 +148,7 @@
 			</div>
 			
 			<div class="name col-md-<?php echo $name_width; ?> col-sm-9">
-				<h1 class="beer-name"><?php echo $row_taplist['beer_name'];?></h1>
+				<h1 class="beer-name"><?php if ($row_taplist['beer_name'] == NULL) echo 'No Beer on Tap'; else echo $row_taplist['beer_name'];?></h1>
 				
 				<h2 class="beer-style"><?php echo $row_taplist['style_name'];?></h2>
 				
@@ -158,7 +156,7 @@
 			</div>
 			
 			<div class="abv col-md-2 col-sm-2 <?php if ($show_abv_col == 0) echo 'no-show';?>">
-				<h3><?php echo $kCal;?> kCal</h3>
+				<h3><?php echo $nonalchoholic == 1 ? '165' : $kCal;?> kCal</h3>
 				
 				<div class="abv-container hidden-sm-down <?php if ($show_abv_img == 0) echo 'no-show';?>">
 					<div class="abv-indicator">
