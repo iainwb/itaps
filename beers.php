@@ -1,13 +1,10 @@
-
 <?php
-   include ('assets/inc/func.inc');
-   require_once ('connections/itaps_conn.php');
+	require ('assets/inc/config.php');
+  	include ('assets/inc/func.inc');
+  	require_once ('connections/itaps_conn.php');
    
    //include config
-   require_once('assets/inc/config.php'); 
-   
-   //include config
-   require_once('assets/inc/config.php'); 
+   //require_once('assets/inc/config.php'); 
    
    // define variables and set to empty/placeholder values
    
@@ -36,7 +33,7 @@ JOIN bjcp_styles
 ON bjcp_styles.style_number = beers.style_number_fk";
    $beerlist = $conn->query($query_beerlist);
    $row_beerlist = $beerlist->fetch(PDO::FETCH_ASSOC);
-   
+//print_r($row_beerlist).'<br><br>';
      
      //define page title
      $title = 'Beer List';
@@ -105,12 +102,12 @@ ON bjcp_styles.style_number = beers.style_number_fk";
                $color_name = $row_beerlist['color_name'];
                $srm_decimal = $row_beerlist['srm_decimal'];
                $note = $row_beerlist['note'];
-               $gubu = round($ibu/(($og-1)*1000),2);
+//               $gubu = round($ibu/(($og-1)*1000),2);
                $ibuImg = (round($ibu/120,2)*100);
                $abvImg = (round(abv($og, $fg, $abv, $digits = 2)/20,2)*100);
                ?>
             <div class="row">
-               <div class="col name"><?php echo $beer_name; ?><br/><?php echo $style; ?></div>
+               <div class="col name"><?php echo $beer_name; ?><br/><span class="style"><?php echo $style; ?></span></div>
             </div>
             <div class="row">
                <div class="col-md-2 hidden-sm-down og">OG:&nbsp;<?php echo $og; ?></div>

@@ -1,4 +1,5 @@
 <?php 
+	require ('assets/inc/config.php');
 	include('assets/inc/func.inc');
 	require_once('connections/itaps_conn.php');
 		

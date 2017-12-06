@@ -1,4 +1,5 @@
 <?php 
+	require ('assets/inc/config.php');
 	include('assets/inc/func.inc');
 	require_once('connections/itaps_conn.php');
 	
@@ -410,7 +411,7 @@
 //define page title
 $title = 'Edit/Add Kegs';
 
-//include htnl header template
+//include html header template
 require('assets/inc/html-header.php');	
 ?>
 <body>
@@ -445,7 +446,7 @@ require('assets/inc/html-header.php');
 			
 				<?php if ($action == 'edit'){?>
 				<div class="form-group row has-<?php echo $keg_id_err_state?>">
-					<label for="<?php echo $keg_id_err_input ?> class="col-3 col-form-label" ">Keg #:</label>
+					<label for="<?php echo $keg_id_err_input ?>" class="col-3 col-form-label">Keg #:</label>
 					<div class="col-8">
 						<input type="hidden" name="new_keg_id" value="<?php echo $keg_id;?>">
 						<p class="form-control-static"><?php echo $keg_id;?></p>

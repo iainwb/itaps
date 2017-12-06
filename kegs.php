@@ -1,8 +1,7 @@
-<!DOCTYPE html>
 <?php 
-   include ('assets/inc/func.inc');
-   
-   require_once ('connections/itaps_conn.php');
+	require ('assets/inc/config.php');
+	include ('assets/inc/func.inc');
+  	require_once ('connections/itaps_conn.php');
    	
    // declare variables and set to empty/placeholder values
    
@@ -177,7 +176,7 @@
   //define page title
   $title = 'Keg List';
   
-  //include htnl header template
+  //include html header template
   require('assets/inc/html-header.php'); 			
    ?>
    <body>
@@ -291,7 +290,7 @@
                   $tap_id = $row_keglist['tap_id'];
                   ?>
                <div class="row">
-                  <div class="col-md kegnum">Keg #<?php echo $keg_id; ?><br/><?php echo (!empty($beer_name)) ? $beer_name:'No beer'; ?>
+                  <div class="col-md kegnum">Keg #<?php echo $keg_id; ?><br/><span class="beer-name"><?php echo (!empty($beer_name)) ? $beer_name:'No beer'; ?></span>
                   </div>
                </div>
                <div class="row">
