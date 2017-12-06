@@ -37,98 +37,47 @@ function kCal($og, $fg, $kCal, $digits = 1) {
 //Set links in navbar
 function navbar($pagename){	
 	
-if ($pagename == 'kegs') $activeSection = 
-  	   	  '<li><a href="admin.php">Admin</a></li>
-            <li class="active"><a href="#">Kegs</a></li>
-            <li><a href="beers.php">Beers</a></li>
-            <li><a href="taplist.php?preview=yes">Taplist Preview</a></li>';
+	
+if ($pagename == 'kegs' || $pagename == 'kegs-edit') $activeSection = 
+  	   	  '<li class="nav-item active"><a class="nav-link" href="kegs.php">Kegs</a></li>
+            <li class="nav-item"><a class="nav-link" href="beers.php">Beers</a></li>
+            <li class="nav-item"><a class="nav-link" href="taplist.php?preview=yes">Taplist Preview</a></li>
+            ';
 	
 elseif
-	($pagename == 'beers') $activeSection =  
-			'<li><a href="admin.php">Admin</a></li>
-            <li><a href="kegs.php">Kegs</a></li>
-            <li class="active"><a href="#">Beers</a></li>
-            <li><a href="taplist.php?preview=yes">Taplist Preview</a></li>';
-	
-elseif
-	($pagename == 'admin') $activeSection =  
-			'<li class="active"><a href="#">Admin</a></li>
-            <li><a href="kegs.php">Kegs</a></li>
-            <li><a href="beers.php">Beers</a></li>
-            <li><a href="taplist.php?preview=yes">Taplist Preview</a></li>';
+	($pagename == 'beers' || $pagename == 'beers-edit') $activeSection =  
+			'<li class="nav-item"><a class="nav-link" href="kegs.php">Kegs</a></li>
+            <li class="nav-item active"><a class="nav-link" href="beers.php">Beers</a></li>
+            <li class="nav-item"><a class="nav-link" href="taplist.php?preview=yes">Taplist Preview</a></li>
+            ';
 	
 elseif
 	($pagename == 'taplist') $activeSection =  
-			'<li><a href="admin.php">Admin</a></li>
-            <li><a href="kegs.php">Kegs</a></li>
-            <li><a href="beers.php">Beers</a></li>
-            <li class="active"><a href="taplist.php?preview=yes">Taplist Preview</a></li>';
+			'<li class="nav-item"><a class="nav-link" href="kegs.php">Kegs</a></li>
+            <li class="nav-item"><a class="nav-link" href="beers.php">Beers</a></li>
+            <li class="nav-item active"><a class="nav-link" href="taplist.php?preview=yes">Taplist Preview</a></li>
+            ';
 	
 else ($activeSection = 
-	  		'<li><a href="admin.php">Admin</a></li>
-            <li><a href="kegs.php">Kegs</a></li>
-            <li><a href="beers.php">Beers</a></li>
-            <li><a href="taplist.php?preview=yes">Taplist Preview</a></li>');
+	  		'<li class="nav-item"><a class="nav-link" href="kegs.php">Kegs</a></li>
+            <li class="nav-item"><a class="nav-link" href="beers.php">Beers</a></li>
+            <li class="nav-item"><a class="nav-link" href="taplist.php?preview=yes">Taplist Preview</a></li>
+            
+            ');
 
 echo $activeSection;
 }
 
-//Choose relevant pull-down menu
-function dropdown($pagename){	
-	
-if ($pagename == 'kegs') $dropdownMenu = '
-<li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions<span class="caret"></span></a>
-<ul class="dropdown-menu">
-                <li class="dropdown-header">Choose Action</li>
-				<li> <a href="#" onclick="submitEditKegRequest()">Edit</a> </li>
-                <li><a href="#" onclick="submitNewKegRequest()">Add</a></li>
-                <li><a href="#" onclick="submitDeleteKegRequest()">Delete</a></li>
-              </ul>';
-elseif
-	($pagename == 'beers') $dropdownMenu =  '
-	<li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions<span class="caret"></span></a>
-	<ul class="dropdown-menu">
-                <li class="dropdown-header">Choose Action</li>
-				 <li><a href="#" onclick="submitEdit()">Edit</a></li>
-                <li><a href="#" onclick="submitNew()">Add</a></li>
-                <li><a href="beers-delete.php">Delete</a></li>
-              </ul>';
-elseif
-	($pagename == 'admin') $dropdownMenu =  '
-	<li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions<span class="caret"></span></a>
-	<ul class="dropdown-menu">
-                <li class="dropdown-header">Choose Action</li>
-                <li>Noe Available</li>
-              </ul>';
-elseif
-	($pagename == 'taplist-p') $dropdownMenu =  ' ';
-else ($dropdownMenu = '<li></li></ul> ');
-
-echo $dropdownMenu;
-}
-
-
 //Set tap/kick button
 function tapKick($status, $tapKick) {
 	if ($status == "Tapped")
-		 echo'			
-				
-					<button type="button" class="btn btn-primary"  >Kick Keg</button>		
-				
-			';
+		 echo'<button type="button" class="btn btn-primary">Kick Keg</button>';
 	elseif ($status == "On Deck")
-		echo'			
-				
-					<button type="button" class="btn btn-primary" >Tap Keg</button>		
-				
-			';
+		echo'<button type="button" class="btn btn-primary">Tap Keg</button>	';
 	else echo'&nbsp;';
 }
 
-//Test from input data
+//Test form input data
 function test_input($data) {
   $data = trim($data);
   $data = stripslashes($data);
@@ -137,10 +86,27 @@ function test_input($data) {
 }
 
 
+function new_button($pagename){
+	
+	if($pagename == 'beers'){
+    echo '<button type="button" class="btn new btn-primary" onclick="submitBeerNew()">New Beer</button>';
+    
+}elseif ($pagename == 'kegs'){
+    echo '<button type="button" class="btn new btn-primary" onclick="submitKegNew()">New Keg</button>';
+    	}
+	else{ echo '';}
+}
 
-
-
-
-
-
+   // Set status type color
+   
+   function statusColor($status_code, $color)
+   	{
+   	if ($status_code == "Tapped") echo ('card-success');
+   	elseif ($status_code == "On Deck") echo ('card-info');
+		elseif ($status_code == "Empty—Clean") echo ('card-warning');
+		elseif ($status_code == "Conditioning") echo ('card-warning');
+   	  else echo ('card-danger');
+   	return ($color);
+   	}
+	
 ?>
