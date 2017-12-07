@@ -1,0 +1,33 @@
+<?php
+include('phpmailer.php');
+class Mail extends PhpMailer
+{
+    // Set default variables for all new objects
+    public $From     = 'noreply@itaps.loc.com';
+    public $FromName = SITETITLE;
+    public $Host     = 'ssl://smtp.gmail.com';
+    public $Mailer   = 'smtp';
+    public $Port		 = '465';
+    public $SMTPAuth = true;
+    public $Username = 'iainwb@gmail.com';
+    public $Password = 'G1@schu7';
+    public $SMTPSecure = 'tls';
+    public $WordWrap = 75;
+
+    public function subject($subject)
+    {
+        $this->Subject = $subject;
+    }
+
+    public function body($body)
+    {
+        $this->Body = $body;
+    }
+
+    public function send()
+    {
+        $this->AltBody = strip_tags(stripslashes($this->Body))."\n\n";
+        $this->AltBody = str_replace("&nbsp;", "\n\n", $this->AltBody);
+        return parent::send();
+    }
+}
